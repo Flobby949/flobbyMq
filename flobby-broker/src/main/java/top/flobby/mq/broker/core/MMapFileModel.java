@@ -17,6 +17,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author : Flobby
@@ -36,7 +37,7 @@ public class MMapFileModel {
      * 支持指定 offset 的文件映射
      * 结束映射 offset - 开始映射 offset = 映射的内存体积
      *
-     * @param topicName    topic
+     * @param topicName   topic
      * @param startOffset 起始偏移量
      * @param mappedSize  映射体积
      */
@@ -81,13 +82,10 @@ public class MMapFileModel {
         String filePath = "";
         if (diff == 0) {
             // 已经写满
-            filePath = this.createNewCommitLogFile(topicName, latestCommitLog);
+            filePath = this.createNewCommitLogFile(topicName, latestCommitLog).getNewFilePath();
         } else if (diff > 0) {
             // 还有机会写入
-            filePath = CommonCache.getGlobalProperties().getMqHome()
-                    + BrokerConstants.BASE_STORE_PATH
-                    + topicName + "/"
-                    + latestCommitLog.getFileName();
+            filePath = CommitLogFileNameUtil.buildCommitLogFilePath(topicName, latestCommitLog.getFileName());
         }
         return filePath;
     }
@@ -97,21 +95,44 @@ public class MMapFileModel {
      *
      * @param topicName topic
      * @param oldFile   旧文件
-     * @return {@link String }
+     * @return {@link CommitLogFilePath }
      */
-    private String createNewCommitLogFile(String topicName, CommitLogModel oldFile) {
+    private CommitLogFilePath createNewCommitLogFile(String topicName, CommitLogModel oldFile) {
         String newFileName = CommitLogFileNameUtil.incrCommitLogFileName(oldFile.getFileName());
-        String newFilePath = CommonCache.getGlobalProperties().getMqHome()
-                + BrokerConstants.BASE_STORE_PATH
-                + topicName + "/"
-                + newFileName;
+        String newFilePath = CommitLogFileNameUtil.buildCommitLogFilePath(topicName, newFileName);
         File newCommitFile = new File(newFilePath);
         try {
             newCommitFile.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return newFilePath;
+        return new CommitLogFilePath(newFileName, newFilePath);
+    }
+
+    class CommitLogFilePath {
+        private String newFileName;
+        private String newFilePath;
+
+        public CommitLogFilePath(String newFileName, String newFilePath) {
+            this.newFileName = newFileName;
+            this.newFilePath = newFilePath;
+        }
+
+        public String getNewFileName() {
+            return newFileName;
+        }
+
+        public void setNewFileName(String newFileName) {
+            this.newFileName = newFileName;
+        }
+
+        public String getNewFilePath() {
+            return newFilePath;
+        }
+
+        public void setNewFilePath(String newFilePath) {
+            this.newFilePath = newFilePath;
+        }
     }
 
     /**
@@ -138,7 +159,7 @@ public class MMapFileModel {
      * 写入数据
      *
      * @param commitLogMessageModel 消息内容
-     * @param force                                 是否强制刷盘
+     * @param force                 是否强制刷盘
      */
     public void writeContent(CommitLogMessageModel commitLogMessageModel, boolean force) throws IOException {
         /**
@@ -188,9 +209,13 @@ public class MMapFileModel {
         long freeSpace = latestCommitLog.countDiff();
         // 如果空间不足，创建新的 CommitLog 文件并做映射
         if (!(freeSpace >= commitLogMessageModel.getSize())) {
-            String newCommitLogFile = this.createNewCommitLogFile(this.topic, latestCommitLog);
+            CommitLogFilePath commitLogFile = this.createNewCommitLogFile(this.topic, latestCommitLog);
+            // 重置 offset
+            latestCommitLog.setFileName(commitLogFile.getNewFileName());
+            latestCommitLog.setOffset(new AtomicInteger(0));
+            latestCommitLog.setOffsetLimit(Long.valueOf(BrokerConstants.COMMIT_LOG_DEFAULT_MMAP_SIZE));
             // 映射新 mmap
-            this.doMMap(newCommitLogFile, BrokerConstants.MMAP_DEFAULT_START_OFFSET, BrokerConstants.COMMIT_LOG_DEFAULT_MMAP_SIZE);
+            this.doMMap(commitLogFile.getNewFilePath(), BrokerConstants.MMAP_DEFAULT_START_OFFSET, BrokerConstants.COMMIT_LOG_DEFAULT_MMAP_SIZE);
         }
     }
 

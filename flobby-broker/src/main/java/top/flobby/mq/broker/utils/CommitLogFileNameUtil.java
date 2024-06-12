@@ -1,5 +1,8 @@
 package top.flobby.mq.broker.utils;
 
+import top.flobby.mq.broker.cache.CommonCache;
+import top.flobby.mq.broker.constant.BrokerConstants;
+
 /**
  * @author : Flobby
  * @program : flobbyMq
@@ -16,6 +19,20 @@ public class CommitLogFileNameUtil {
      */
     public static String buildFirstCommitLogName () {
         return "00000000";
+    }
+
+    /**
+     * 构建CommitLog文件路径
+     *
+     * @param topicName   主题名称
+     * @param commitLogFileName 文件名
+     * @return {@link String }
+     */
+    public static String buildCommitLogFilePath(String topicName, String commitLogFileName) {
+        return CommonCache.getGlobalProperties().getMqHome()
+                + BrokerConstants.BASE_STORE_PATH
+                + topicName + "/"
+                + commitLogFileName;
     }
 
 

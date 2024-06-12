@@ -1,6 +1,6 @@
 package top.flobby.mq.broker.model;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author : Flobby
@@ -17,7 +17,7 @@ public class CommitLogModel {
     /**
      * 最新 CommitLog 写入地址
      */
-    private AtomicLong offset;
+    private AtomicInteger offset;
     /**
      * 可写入的最大体积
      */
@@ -39,11 +39,11 @@ public class CommitLogModel {
         this.fileName = fileName;
     }
 
-    public AtomicLong getOffset() {
+    public AtomicInteger getOffset() {
         return offset;
     }
 
-    public void setOffset(AtomicLong offset) {
+    public void setOffset(AtomicInteger offset) {
         this.offset = offset;
     }
 
