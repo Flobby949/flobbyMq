@@ -1,5 +1,8 @@
 package top.flobby.mq.broker.core;
 
+import top.flobby.mq.broker.constant.BrokerConstants;
+import top.flobby.mq.broker.model.CommitLogMessageModel;
+
 import java.io.IOException;
 
 /**
@@ -9,7 +12,7 @@ import java.io.IOException;
  * @create : 2024-06-12 09:47
  **/
 
-public class MessageAppendHandler {
+public class CommitLogAppendHandler {
 
     private MMapFileModelManager mMapFileModelManager = new MMapFileModelManager();
 
@@ -18,24 +21,27 @@ public class MessageAppendHandler {
      *
      * @throws IOException io异常
      */
-    public void prepareMMapLoading(String filePath, String topicName) throws IOException {
+    public void prepareMMapLoading(String topicName) throws IOException {
         MMapFileModel mMapFileModel = new MMapFileModel();
-        mMapFileModel.loadFileInMMap(filePath, 0, 1024 * 1024 * 1);
+        mMapFileModel.loadFileInMMap(topicName, BrokerConstants.MMAP_DEFAULT_START_OFFSET, BrokerConstants.COMMIT_LOG_DEFAULT_MMAP_SIZE);
         mMapFileModelManager.put(topicName, mMapFileModel);
     }
 
     /**
      * 追加写入消息
      *
-     * @param topic     主题
+     * @param topic   主题
      * @param content 内容
      */
-    public void appendMsg(String topic, String content) {
+    public void appendMsg(String topic, byte[] content) throws IOException {
         MMapFileModel mMapFileModel = mMapFileModelManager.get(topic);
         if (mMapFileModel == null) {
             throw new RuntimeException("topic is not exist");
         }
-        mMapFileModel.writeContent(content.getBytes());
+        CommitLogMessageModel commitLogMessageModel = new CommitLogMessageModel();
+        commitLogMessageModel.setContent(content);
+        commitLogMessageModel.setSize(content.length);
+        mMapFileModel.writeContent(commitLogMessageModel);
     }
 
     public void readMsg(String topic) {

@@ -14,6 +14,11 @@ public class TopicModel {
      * 主题
      */
     private String topic;
+
+    /**
+     * 最新 CommitLog 信息
+     */
+    private CommitLogModel latestCommitLog;
     /**
      * 队列
      */
@@ -59,10 +64,19 @@ public class TopicModel {
         this.updateAt = updateAt;
     }
 
+    public CommitLogModel getLatestCommitLog() {
+        return latestCommitLog;
+    }
+
+    public void setLatestCommitLog(CommitLogModel latestCommitLog) {
+        this.latestCommitLog = latestCommitLog;
+    }
+
     @Override
     public String toString() {
         return "TopicModel{" +
                 "topic='" + topic + '\'' +
+                ", latestCommitLog=" + latestCommitLog +
                 ", queueList=" + queueList +
                 ", createAt=" + createAt +
                 ", updateAt=" + updateAt +

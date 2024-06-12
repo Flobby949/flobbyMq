@@ -14,7 +14,7 @@ import java.util.List;
  * @create : 2024-06-12 10:40
  **/
 
-public class FileContentReaderUtils {
+public class FileContentReaderUtil {
 
     public static String readFromFile(String fileName) {
         try (BufferedReader in = new BufferedReader(new FileReader(fileName))) {
@@ -29,7 +29,7 @@ public class FileContentReaderUtils {
     }
 
     public static void main(String[] args) {
-        String content = FileContentReaderUtils.readFromFile("F:\\flobbyMq\\broker\\config\\flobbymq-topic.json");
+        String content = FileContentReaderUtil.readFromFile("F:\\flobbyMq\\broker\\config\\flobbymq-topic.json");
         System.out.println(content);
         List<TopicModel> topicModels = JSON.parseArray(content, TopicModel.class);
         System.out.println("topicModels = " + topicModels);

@@ -3,12 +3,10 @@ package top.flobby.mq.broker;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.config.GlobalPropertiesLoader;
 import top.flobby.mq.broker.config.TopicModelInfoLoader;
-import top.flobby.mq.broker.constant.BrokerConstants;
-import top.flobby.mq.broker.core.MessageAppendHandler;
+import top.flobby.mq.broker.core.CommitLogAppendHandler;
 import top.flobby.mq.broker.model.TopicModel;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author : Flobby
@@ -21,15 +19,15 @@ public class BrokerStartUp {
 
     private static GlobalPropertiesLoader globalPropertiesLoader;
     private static TopicModelInfoLoader topicModelInfoLoader;
-    private static MessageAppendHandler messageAppendHandler;
+    private static CommitLogAppendHandler commitLogAppendHandler;
 
     public static void main(String[] args) throws IOException {
         // 加载配置，缓存对象生成
         initProperties();
         // 模拟初始化文件映射
         String topic = "order_cancel_topic";
-        messageAppendHandler.appendMsg(topic, "broker start up");
-        messageAppendHandler.readMsg(topic);
+        commitLogAppendHandler.appendMsg(topic, "broker start up".getBytes());
+        commitLogAppendHandler.readMsg(topic);
     }
 
     /**
@@ -40,15 +38,10 @@ public class BrokerStartUp {
         globalPropertiesLoader.loadProperties();
         topicModelInfoLoader = new TopicModelInfoLoader();
         topicModelInfoLoader.loadProperties();
-        messageAppendHandler = new MessageAppendHandler();
-        List<TopicModel> topicModelList = CommonCache.getTopicModelList();
-        for (TopicModel topicModel : topicModelList) {
+        commitLogAppendHandler = new CommitLogAppendHandler();
+        for (TopicModel topicModel : CommonCache.getTopicModelMap().values()) {
             String topicName = topicModel.getTopic();
-            String filePath = CommonCache.getGlobalProperties().getMqHome()
-                    + BrokerConstants.BASE_STORE_PATH
-                    + topicName + "/"
-                    + "00000000";
-            messageAppendHandler.prepareMMapLoading(filePath, topicName);
+            commitLogAppendHandler.prepareMMapLoading(topicName);
         }
     }
 }

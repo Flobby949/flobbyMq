@@ -4,9 +4,10 @@ import com.alibaba.fastjson2.JSON;
 import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.model.TopicModel;
-import top.flobby.mq.broker.utils.FileContentReaderUtils;
+import top.flobby.mq.broker.utils.FileContentReaderUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author : Flobby
@@ -26,8 +27,8 @@ public class TopicModelInfoLoader {
             throw new IllegalArgumentException("FLOBBY_MQ_HOME is inValid!");
         }
         String topicJsonFilePath = basePath + "/config/flobbymq-topic.json";
-        String fileContent = FileContentReaderUtils.readFromFile(topicJsonFilePath);
+        String fileContent = FileContentReaderUtil.readFromFile(topicJsonFilePath);
         List<TopicModel> topicModels = JSON.parseArray(fileContent, TopicModel.class);
-        CommonCache.setTopicModelList(topicModels);
+        CommonCache.setTopicModelMap(topicModels.stream().collect(Collectors.toMap(TopicModel::getTopic, item -> item)));
     }
 }
