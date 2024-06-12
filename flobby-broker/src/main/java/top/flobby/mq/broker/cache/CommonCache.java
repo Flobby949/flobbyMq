@@ -3,8 +3,10 @@ package top.flobby.mq.broker.cache;
 import top.flobby.mq.broker.config.GlobalProperties;
 import top.flobby.mq.broker.model.TopicModel;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author : Flobby
@@ -18,14 +20,18 @@ public class CommonCache {
     public static GlobalProperties globalProperties = new GlobalProperties();
 
 
-    public static Map<String, TopicModel> topicModelMap = new HashMap<>();
+    public static List<TopicModel> topicModelList = new ArrayList<>();
 
-    public static Map<String, TopicModel> getTopicModelMap() {
-        return topicModelMap;
+    public static List<TopicModel> getTopicModelList() {
+        return topicModelList;
     }
 
-    public static void setTopicModelMap(Map<String, TopicModel> topicModelMap) {
-        CommonCache.topicModelMap = topicModelMap;
+    public static Map<String, TopicModel> getTopicModelMap() {
+        return topicModelList.stream().collect(Collectors.toMap(TopicModel::getTopic, item -> item));
+    }
+
+    public static void setTopicModelList(List<TopicModel> topicModelList) {
+        CommonCache.topicModelList = topicModelList;
     }
 
     public static GlobalProperties getGlobalProperties() {

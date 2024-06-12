@@ -49,7 +49,7 @@ public class CommitLogAppendHandler {
         if (mMapFileModel == null) {
             throw new RuntimeException("topic is not exist");
         }
-        byte[] readContent = mMapFileModel.readContent(0, 10);
+        byte[] readContent = mMapFileModel.readContent(0, 1000);
         System.out.println(new String(readContent));
     }
 }

@@ -77,7 +77,7 @@ public class MMapFileModel {
             throw new IllegalArgumentException("topic is inValid! topicName=" + topicName);
         }
         CommitLogModel latestCommitLog = topicModel.getLatestCommitLog();
-        long diff = latestCommitLog.getOffsetLimit() - latestCommitLog.getOffset();
+        long diff = latestCommitLog.countDiff();
         String filePath = "";
         if (diff == 0) {
             // 已经写满
@@ -86,7 +86,7 @@ public class MMapFileModel {
             // 还有机会写入
             filePath = CommonCache.getGlobalProperties().getMqHome()
                     + BrokerConstants.BASE_STORE_PATH
-                    + topicName
+                    + topicName + "/"
                     + latestCommitLog.getFileName();
         }
         return filePath;
@@ -103,7 +103,7 @@ public class MMapFileModel {
         String newFileName = CommitLogFileNameUtil.incrCommitLogFileName(oldFile.getFileName());
         String newFilePath = CommonCache.getGlobalProperties().getMqHome()
                 + BrokerConstants.BASE_STORE_PATH
-                + topicName
+                + topicName + "/"
                 + newFileName;
         File newCommitFile = new File(newFilePath);
         try {
@@ -142,7 +142,6 @@ public class MMapFileModel {
      */
     public void writeContent(CommitLogMessageModel commitLogMessageModel, boolean force) throws IOException {
         /**
-         * TODO
          * 1. 定位到最新的 commitLog 中
          * 2. 判断是否写满，如果写满，自动创建新的文件，并且做新的 mmap 映射
          * 3. 对 content 内容封装，再判断写入是否会写满，如果不会，则选择当前 commitLog，否则再创建新的 commitLog 并且映射
@@ -154,11 +153,22 @@ public class MMapFileModel {
          */
 
         // 把对象转换成 byte 数组，将 size 转换为 byte 数组，然后拼上 content
-        byte[] messageBytes = commitLogMessageModel.convertToByte();
+        byte[] messageBytes = commitLogMessageModel.convertToBytes();
+        // 更新 offset 准备工作
+        TopicModel topicModel = CommonCache.getTopicModelMap().get(topic);
+        if (topicModel == null) {
+            throw new IllegalArgumentException("topic is null! topicName=" + topic);
+        }
+        CommitLogModel commitLog = topicModel.getLatestCommitLog();
+        if (commitLog == null) {
+            throw new IllegalArgumentException("commitLog is null!");
+        }
         // 判断剩余空间是否足够写入
         this.checkCommitLogHasEnableSpace(commitLogMessageModel);
         // 默认刷到 page cache 中（异步）
         mappedByteBuffer.put(messageBytes);
+        // 更新 offset
+        commitLog.getOffset().addAndGet(commitLogMessageModel.getSize());
         if (force) {
             // 强制刷盘
             mappedByteBuffer.force();
@@ -175,7 +185,7 @@ public class MMapFileModel {
         TopicModel topicModel = CommonCache.getTopicModelMap().get(this.topic);
         CommitLogModel latestCommitLog = topicModel.getLatestCommitLog();
         // 剩余空间
-        long freeSpace = latestCommitLog.getOffsetLimit() - latestCommitLog.getOffset();
+        long freeSpace = latestCommitLog.countDiff();
         // 如果空间不足，创建新的 CommitLog 文件并做映射
         if (!(freeSpace >= commitLogMessageModel.getSize())) {
             String newCommitLogFile = this.createNewCommitLogFile(this.topic, latestCommitLog);

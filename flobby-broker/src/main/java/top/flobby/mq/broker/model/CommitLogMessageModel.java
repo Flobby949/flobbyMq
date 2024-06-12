@@ -52,15 +52,15 @@ public class CommitLogMessageModel {
      *
      * @return {@link byte[] }
      */
-    public byte[] convertToByte () {
+    public byte[] convertToBytes() {
         byte[] sizeByte = ByteConvertUtil.intToBytes(size);
         byte[] mergeResult = new byte[sizeByte.length + content.length];
         int index = 0;
         for (int i = 0; i < sizeByte.length; i++, index++) {
-            mergeResult[index] = content[i];
+            mergeResult[index] = sizeByte[i];
         }
         for (int i = 0; i < content.length; i++, index++) {
-            mergeResult[index] = mergeResult[i];
+            mergeResult[index] = content[i];
         }
         return mergeResult;
     }
