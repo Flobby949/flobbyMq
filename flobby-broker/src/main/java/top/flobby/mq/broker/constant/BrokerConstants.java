@@ -10,4 +10,6 @@ package top.flobby.mq.broker.constant;
 public class BrokerConstants {
 
     public final static String FLOBBY_MQ_HOME = "flobby_mq_home";
+
+    public final static String BASE_STORE_PATH = "/store/";
 }

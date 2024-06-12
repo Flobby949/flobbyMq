@@ -16,7 +16,8 @@ public class GlobalPropertiesLoader {
 
     public void loadProperties() {
         globalProperties = new GlobalProperties();
-        String mqHome = System.getenv(BrokerConstants.FLOBBY_MQ_HOME);
+        // 将项目路径配置在启动参数中，否则空指针报错
+        String mqHome = System.getProperty(BrokerConstants.FLOBBY_MQ_HOME);
         if (mqHome == null) {
             throw new IllegalArgumentException("FLOBBY_MQ_HOME is null");
         }

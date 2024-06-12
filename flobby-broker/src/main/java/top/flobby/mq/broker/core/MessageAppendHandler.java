@@ -12,20 +12,13 @@ import java.io.IOException;
 public class MessageAppendHandler {
 
     private MMapFileModelManager mMapFileModelManager = new MMapFileModelManager();
-    private String filePath = "F:\\flobbyMq\\broker\\store\\order_cancel_topic\\00000001";
-    public static String topicName = "order_cancel_topic";
-
-    public MessageAppendHandler() throws IOException {
-        prepareMMapLoading();
-    }
 
     /**
      * MMap 预加载
      *
      * @throws IOException io异常
      */
-    private void prepareMMapLoading() throws IOException {
-        this.mMapFileModelManager = new MMapFileModelManager();
+    public void prepareMMapLoading(String filePath, String topicName) throws IOException {
         MMapFileModel mMapFileModel = new MMapFileModel();
         mMapFileModel.loadFileInMMap(filePath, 0, 1024 * 1024 * 1);
         mMapFileModelManager.put(topicName, mMapFileModel);
@@ -52,12 +45,5 @@ public class MessageAppendHandler {
         }
         byte[] readContent = mMapFileModel.readContent(0, 10);
         System.out.println(new String(readContent));
-    }
-
-    public static void main(String[] args) throws IOException {
-        MessageAppendHandler messageAppendHandler = new MessageAppendHandler();
-        messageAppendHandler.readMsg(topicName);
-        messageAppendHandler.appendMsg(topicName, "Hello World");
-        messageAppendHandler.readMsg(topicName);
     }
 }
