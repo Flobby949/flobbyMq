@@ -10,16 +10,21 @@
     </parent>
 
     <artifactId>flobby-broker</artifactId>
+    <description>mq服务端的核心代码内容,消息原始数据存储，消息的索引文件存储，mmap等非常多的内容</description>
 
     <properties>
-
+        <junit.version>4.13.1</junit.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
+
     </dependencies>
+
 
 </project>
