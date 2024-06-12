@@ -108,6 +108,7 @@ public class MMapFileModel {
         File newCommitFile = new File(newFilePath);
         try {
             newCommitFile.createNewFile();
+            System.out.println("创建了新的 CommitLog 文件, newFileName = " + newFileName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -151,9 +152,6 @@ public class MMapFileModel {
          * 1. 性能优化问题：需要定义一个新的对象专门管理各个 topic 的最新写入 offset 值，并且定时刷新到磁盘中，是否需要用 mmap ？
          * 2. 线程安全问题：写入数据，offset 变更，在高并发场景下，offset 是否会被多个线程访问？如何选择锁？
          */
-
-        // 把对象转换成 byte 数组，将 size 转换为 byte 数组，然后拼上 content
-        byte[] messageBytes = commitLogMessageModel.convertToBytes();
         // 更新 offset 准备工作
         TopicModel topicModel = CommonCache.getTopicModelMap().get(topic);
         if (topicModel == null) {
@@ -163,14 +161,16 @@ public class MMapFileModel {
         if (commitLog == null) {
             throw new IllegalArgumentException("commitLog is null!");
         }
-        // 判断剩余空间是否足够写入
-        this.checkCommitLogHasEnableSpace(commitLogMessageModel);
         // 加锁
         putMessageLock.lock();
+        // 把对象转换成 byte 数组，将 size 转换为 byte 数组，然后拼上 content
+        byte[] messageBytes = commitLogMessageModel.convertToBytes();
+        // 判断剩余空间是否足够写入
+        this.checkCommitLogHasEnableSpace(commitLogMessageModel);
         // 默认刷到 page cache 中（异步）
         mappedByteBuffer.put(messageBytes);
         // 更新 offset
-        commitLog.getOffset().addAndGet(commitLogMessageModel.getSize());
+        commitLog.getOffset().addAndGet(messageBytes.length);
         if (force) {
             // 强制刷盘
             mappedByteBuffer.force();

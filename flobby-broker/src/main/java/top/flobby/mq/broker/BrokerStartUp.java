@@ -27,10 +27,9 @@ public class BrokerStartUp {
         initProperties();
         // 模拟初始化文件映射
         String topic = "order_cancel_topic";
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
             commitLogAppendHandler.appendMsg(topic, ("this is content " + i).getBytes());
-            System.out.println("写入数据：" + i);
-            TimeUnit.SECONDS.sleep(2);
+            TimeUnit.SECONDS.sleep(1);
         }
         commitLogAppendHandler.readMsg(topic);
     }
