@@ -12,6 +12,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * mmap 实用程序
@@ -25,6 +27,7 @@ public class MMapUtil {
     private File file;
     private MappedByteBuffer mappedByteBuffer;
     private FileChannel fileChannel;
+    private Lock lock;
 
     /**
      * 支持指定 offset 的文件映射
@@ -42,6 +45,7 @@ public class MMapUtil {
         }
         fileChannel = new RandomAccessFile(file, "rw").getChannel();
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, startOffset, mappedSize);
+        lock = new ReentrantLock();
     }
 
 
@@ -74,11 +78,13 @@ public class MMapUtil {
      */
     public void writeContent(byte[] content, boolean force) {
         // 默认刷到 page cache 中（异步）
+        lock.lock();
         mappedByteBuffer.put(content);
         if (force) {
             // 强制刷盘
             mappedByteBuffer.force();
         }
+        lock.unlock();
     }
 
     public void writeContent(byte[] content) {

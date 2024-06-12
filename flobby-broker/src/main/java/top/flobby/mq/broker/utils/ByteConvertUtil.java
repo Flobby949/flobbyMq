@@ -29,13 +29,4 @@ public class ByteConvertUtil {
         return value;
     }
 
-    public static void main(String[] args) {
-        int j = 100;
-        //4个字节，1byte=8bit, byte[4]
-        byte[] byteContent = ByteConvertUtil.intToBytes(j);
-        System.out.println(byteContent.length);
-        int result = ByteConvertUtil.bytesToInt(byteContent);
-        System.out.println(result);
-    }
-
 }

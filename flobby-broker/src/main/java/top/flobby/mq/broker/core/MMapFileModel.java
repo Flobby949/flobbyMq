@@ -2,6 +2,8 @@ package top.flobby.mq.broker.core;
 
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
+import top.flobby.mq.broker.lock.PutMessageLock;
+import top.flobby.mq.broker.lock.UnFailReentrantLock;
 import top.flobby.mq.broker.model.CommitLogMessageModel;
 import top.flobby.mq.broker.model.CommitLogModel;
 import top.flobby.mq.broker.model.TopicModel;
@@ -32,6 +34,7 @@ public class MMapFileModel {
     private File file;
     private MappedByteBuffer mappedByteBuffer;
     private FileChannel fileChannel;
+    private PutMessageLock putMessageLock;
 
     /**
      * 支持指定 offset 的文件映射
@@ -46,6 +49,8 @@ public class MMapFileModel {
         this.topic = topicName;
         String filePath = getLatestCommitLogFilePath(topicName);
         this.doMMap(filePath, startOffset, mappedSize);
+        // 接口模式，配置非公平锁
+        putMessageLock = new UnFailReentrantLock();
     }
 
     /**
@@ -109,32 +114,6 @@ public class MMapFileModel {
         return new CommitLogFilePath(newFileName, newFilePath);
     }
 
-    class CommitLogFilePath {
-        private String newFileName;
-        private String newFilePath;
-
-        public CommitLogFilePath(String newFileName, String newFilePath) {
-            this.newFileName = newFileName;
-            this.newFilePath = newFilePath;
-        }
-
-        public String getNewFileName() {
-            return newFileName;
-        }
-
-        public void setNewFileName(String newFileName) {
-            this.newFileName = newFileName;
-        }
-
-        public String getNewFilePath() {
-            return newFilePath;
-        }
-
-        public void setNewFilePath(String newFilePath) {
-            this.newFilePath = newFilePath;
-        }
-    }
-
     /**
      * 文件从指定的 offset 开始读取
      *
@@ -186,6 +165,8 @@ public class MMapFileModel {
         }
         // 判断剩余空间是否足够写入
         this.checkCommitLogHasEnableSpace(commitLogMessageModel);
+        // 加锁
+        putMessageLock.lock();
         // 默认刷到 page cache 中（异步）
         mappedByteBuffer.put(messageBytes);
         // 更新 offset
@@ -194,6 +175,7 @@ public class MMapFileModel {
             // 强制刷盘
             mappedByteBuffer.force();
         }
+        putMessageLock.unlock();
     }
 
     /**
@@ -292,5 +274,31 @@ public class MMapFileModel {
         }
         ByteBuffer viewedBuffer = (ByteBuffer) invoke(buffer, methodName);
         return viewedBuffer == null ? buffer : viewed(buffer);
+    }
+
+    class CommitLogFilePath {
+        private String newFileName;
+        private String newFilePath;
+
+        public CommitLogFilePath(String newFileName, String newFilePath) {
+            this.newFileName = newFileName;
+            this.newFilePath = newFilePath;
+        }
+
+        public String getNewFileName() {
+            return newFileName;
+        }
+
+        public void setNewFileName(String newFileName) {
+            this.newFileName = newFileName;
+        }
+
+        public String getNewFilePath() {
+            return newFilePath;
+        }
+
+        public void setNewFilePath(String newFilePath) {
+            this.newFilePath = newFilePath;
+        }
     }
 }
