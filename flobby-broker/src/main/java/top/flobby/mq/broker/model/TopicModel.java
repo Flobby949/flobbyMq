@@ -16,6 +16,11 @@ public class TopicModel {
     private String topic;
 
     /**
+     * 队列大小
+     */
+    private Integer queueSize;
+
+    /**
      * 最新 CommitLog 信息
      */
     private CommitLogModel latestCommitLog;
@@ -38,6 +43,14 @@ public class TopicModel {
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public Integer getQueueSize() {
+        return queueSize;
+    }
+
+    public void setQueueSize(Integer queueSize) {
+        this.queueSize = queueSize;
     }
 
     public List<QueueModel> getQueueList() {
@@ -76,6 +89,7 @@ public class TopicModel {
     public String toString() {
         return "TopicModel{" +
                 "topic='" + topic + '\'' +
+                ", queueSize=" + queueSize +
                 ", latestCommitLog=" + latestCommitLog +
                 ", queueList=" + queueList +
                 ", createAt=" + createAt +

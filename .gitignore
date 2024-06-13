@@ -32,4 +32,6 @@ build/
 .vscode/
 
 /broker/store
+/broker/commit_log
+/broker/consumer_queue
 /arthas-output

@@ -1,6 +1,7 @@
 package top.flobby.mq.broker.cache;
 
 import top.flobby.mq.broker.config.GlobalProperties;
+import top.flobby.mq.broker.model.ConsumerQueueOffsetModel;
 import top.flobby.mq.broker.model.TopicModel;
 
 import java.util.ArrayList;
@@ -22,6 +23,8 @@ public class CommonCache {
 
     public static List<TopicModel> topicModelList = new ArrayList<>();
 
+    public static ConsumerQueueOffsetModel consumerQueueOffsetModel = new ConsumerQueueOffsetModel();
+
     public static List<TopicModel> getTopicModelList() {
         return topicModelList;
     }
@@ -40,5 +43,13 @@ public class CommonCache {
 
     public static void setGlobalProperties(GlobalProperties globalProperties) {
         CommonCache.globalProperties = globalProperties;
+    }
+
+    public static ConsumerQueueOffsetModel getConsumerQueueOffsetModel() {
+        return consumerQueueOffsetModel;
+    }
+
+    public static void setConsumerQueueOffsetModel(ConsumerQueueOffsetModel consumerQueueOffsetModel) {
+        CommonCache.consumerQueueOffsetModel = consumerQueueOffsetModel;
     }
 }

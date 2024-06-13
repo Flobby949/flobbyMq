@@ -6,6 +6,7 @@ import top.flobby.mq.broker.lock.PutMessageLock;
 import top.flobby.mq.broker.lock.UnFailReentrantLock;
 import top.flobby.mq.broker.model.CommitLogMessageModel;
 import top.flobby.mq.broker.model.CommitLogModel;
+import top.flobby.mq.broker.model.ConsumerQueueDetailModel;
 import top.flobby.mq.broker.model.TopicModel;
 import top.flobby.mq.broker.utils.CommitLogFileNameUtil;
 
@@ -169,6 +170,9 @@ public class MMapFileModel {
         this.checkCommitLogHasEnableSpace(commitLogMessageModel);
         // 默认刷到 page cache 中（异步）
         mappedByteBuffer.put(messageBytes);
+        // 消息写入 ConsumerQueue
+        AtomicInteger currentMsgOffset = commitLog.getOffset();
+        this.dispatcher(messageBytes, currentMsgOffset.get());
         // 更新 offset
         commitLog.getOffset().addAndGet(messageBytes.length);
         if (force) {
@@ -176,6 +180,23 @@ public class MMapFileModel {
             mappedByteBuffer.force();
         }
         putMessageLock.unlock();
+    }
+
+    /**
+     * 消息写入 consumerQueue
+     *
+     * @param writeContent 写入内容
+     * @param msgIndex     味精指数
+     */
+    private void dispatcher(byte[] writeContent, int msgIndex) {
+        TopicModel topicModel = CommonCache.getTopicModelMap().get(topic);
+        if (topicModel == null) {
+            throw new IllegalArgumentException("topic is undefined! topicName=" + topic);
+        }
+        ConsumerQueueDetailModel consumerQueueDetail = new ConsumerQueueDetailModel();
+        consumerQueueDetail.setCommitLogFileIndex(Integer.parseInt(topicModel.getLatestCommitLog().getFileName()));
+        consumerQueueDetail.setMsgLength(writeContent.length);
+        consumerQueueDetail.setMsgIndex(msgIndex);
     }
 
     /**
@@ -190,7 +211,7 @@ public class MMapFileModel {
         // 剩余空间
         long freeSpace = latestCommitLog.countDiff();
         // 如果空间不足，创建新的 CommitLog 文件并做映射
-        if (!(freeSpace >= commitLogMessageModel.getSize())) {
+        if (!(freeSpace >= commitLogMessageModel.convertToBytes().length)) {
             CommitLogFilePath commitLogFile = this.createNewCommitLogFile(this.topic, latestCommitLog);
             // 重置 offset
             latestCommitLog.setFileName(commitLogFile.getNewFileName());

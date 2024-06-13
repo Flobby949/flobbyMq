@@ -1,6 +1,7 @@
 package top.flobby.mq.broker;
 
 import top.flobby.mq.broker.cache.CommonCache;
+import top.flobby.mq.broker.config.ConsumerQueueOffsetLoader;
 import top.flobby.mq.broker.config.GlobalPropertiesLoader;
 import top.flobby.mq.broker.config.TopicModelInfoLoader;
 import top.flobby.mq.broker.core.CommitLogAppendHandler;
@@ -21,6 +22,8 @@ public class BrokerStartUp {
     private static GlobalPropertiesLoader globalPropertiesLoader;
     private static TopicModelInfoLoader topicModelInfoLoader;
     private static CommitLogAppendHandler commitLogAppendHandler;
+    private static ConsumerQueueOffsetLoader consumerQueueOffsetLoader;
+
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // 加载配置，缓存对象生成
@@ -43,6 +46,10 @@ public class BrokerStartUp {
         topicModelInfoLoader = new TopicModelInfoLoader();
         topicModelInfoLoader.loadProperties();
         topicModelInfoLoader.startRefreshMqTopicInfoTask();
+        consumerQueueOffsetLoader = new ConsumerQueueOffsetLoader();
+        consumerQueueOffsetLoader.loadProperties();
+        consumerQueueOffsetLoader.startRefreshConsumerQueueOffsetTask();
+
         commitLogAppendHandler = new CommitLogAppendHandler();
         for (TopicModel topicModel : CommonCache.getTopicModelList()) {
             String topicName = topicModel.getTopic();

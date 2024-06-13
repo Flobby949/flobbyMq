@@ -1,7 +1,5 @@
 package top.flobby.mq.broker.model;
 
-import top.flobby.mq.broker.utils.ByteConvertUtil;
-
 import java.util.Arrays;
 
 /**
@@ -16,7 +14,7 @@ public class CommitLogMessageModel {
     /**
      * 消息体积大小，单位字节
      */
-    private int size;
+    // private int size;
 
     /**
      * 真正的消息内容
@@ -26,17 +24,8 @@ public class CommitLogMessageModel {
     @Override
     public String toString() {
         return "CommitLogMessageModel{" +
-                "size=" + size +
-                ", content=" + Arrays.toString(content) +
+                "content=" + Arrays.toString(content) +
                 '}';
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public byte[] getContent() {
@@ -53,15 +42,16 @@ public class CommitLogMessageModel {
      * @return {@link byte[] }
      */
     public byte[] convertToBytes() {
-        byte[] sizeByte = ByteConvertUtil.intToBytes(size);
-        byte[] mergeResult = new byte[sizeByte.length + content.length];
-        int index = 0;
-        for (int i = 0; i < sizeByte.length; i++, index++) {
-            mergeResult[index] = sizeByte[i];
-        }
-        for (int i = 0; i < content.length; i++, index++) {
-            mergeResult[index] = content[i];
-        }
-        return mergeResult;
+        // byte[] sizeByte = ByteConvertUtil.intToBytes(size);
+        // byte[] mergeResult = new byte[sizeByte.length + content.length];
+        // int index = 0;
+        // for (int i = 0; i < sizeByte.length; i++, index++) {
+        //     mergeResult[index] = sizeByte[i];
+        // }
+        // for (int i = 0; i < content.length; i++, index++) {
+        //     mergeResult[index] = content[i];
+        // }
+        // return mergeResult;
+        return content;
     }
 }
