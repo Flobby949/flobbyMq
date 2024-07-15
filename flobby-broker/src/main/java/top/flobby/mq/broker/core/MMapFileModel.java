@@ -8,7 +8,7 @@ import top.flobby.mq.broker.model.CommitLogMessageModel;
 import top.flobby.mq.broker.model.CommitLogModel;
 import top.flobby.mq.broker.model.ConsumerQueueDetailModel;
 import top.flobby.mq.broker.model.TopicModel;
-import top.flobby.mq.broker.utils.CommitLogFileNameUtil;
+import top.flobby.mq.broker.utils.LogFileNameUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,7 +45,7 @@ public class MMapFileModel {
      * @param startOffset 起始偏移量
      * @param mappedSize  映射体积
      */
-    public void loadFileInMMap(String topicName, long startOffset, int mappedSize) throws IOException {
+    public void loadFileInMMap(String topicName, int startOffset, int mappedSize) throws IOException {
         // 持久化topicName
         this.topic = topicName;
         String filePath = getLatestCommitLogFilePath(topicName);
@@ -62,7 +62,7 @@ public class MMapFileModel {
      * @param mappedSize  映射大小
      * @throws IOException io异常
      */
-    private void doMMap(String filePath, long startOffset, int mappedSize) throws IOException {
+    private void doMMap(String filePath, int startOffset, int mappedSize) throws IOException {
         file = new File(filePath);
         // 文件不存在，抛出异常
         if (!file.exists()) {
@@ -91,7 +91,7 @@ public class MMapFileModel {
             filePath = this.createNewCommitLogFile(topicName, latestCommitLog).getNewFilePath();
         } else if (diff > 0) {
             // 还有机会写入
-            filePath = CommitLogFileNameUtil.buildCommitLogFilePath(topicName, latestCommitLog.getFileName());
+            filePath = LogFileNameUtil.buildCommitLogFilePath(topicName, latestCommitLog.getFileName());
         }
         return filePath;
     }
@@ -104,8 +104,8 @@ public class MMapFileModel {
      * @return {@link CommitLogFilePath }
      */
     private CommitLogFilePath createNewCommitLogFile(String topicName, CommitLogModel oldFile) {
-        String newFileName = CommitLogFileNameUtil.incrCommitLogFileName(oldFile.getFileName());
-        String newFilePath = CommitLogFileNameUtil.buildCommitLogFilePath(topicName, newFileName);
+        String newFileName = LogFileNameUtil.incrCommitLogFileName(oldFile.getFileName());
+        String newFilePath = LogFileNameUtil.buildCommitLogFilePath(topicName, newFileName);
         File newCommitFile = new File(newFilePath);
         try {
             newCommitFile.createNewFile();

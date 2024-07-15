@@ -5,6 +5,7 @@ import top.flobby.mq.broker.config.ConsumerQueueOffsetLoader;
 import top.flobby.mq.broker.config.GlobalPropertiesLoader;
 import top.flobby.mq.broker.config.TopicModelInfoLoader;
 import top.flobby.mq.broker.core.CommitLogAppendHandler;
+import top.flobby.mq.broker.core.ConsumeQueueAppendHandler;
 import top.flobby.mq.broker.model.TopicModel;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class BrokerStartUp {
     private static TopicModelInfoLoader topicModelInfoLoader;
     private static CommitLogAppendHandler commitLogAppendHandler;
     private static ConsumerQueueOffsetLoader consumerQueueOffsetLoader;
+    private static ConsumeQueueAppendHandler consumeQueueAppendHandler;
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -54,6 +56,7 @@ public class BrokerStartUp {
         for (TopicModel topicModel : CommonCache.getTopicModelList()) {
             String topicName = topicModel.getTopic();
             commitLogAppendHandler.prepareMMapLoading(topicName);
+            consumeQueueAppendHandler.prepareConsumeQueue(topicName);
         }
     }
 }

@@ -1,5 +1,7 @@
 package top.flobby.mq.broker.model;
 
+import top.flobby.mq.broker.utils.ByteConvertUtil;
+
 /**
  * @author : Flobby
  * @program : flobbyMq
@@ -55,5 +57,23 @@ public class ConsumerQueueDetailModel {
                 ", msgIndex=" + msgIndex +
                 ", msgLength=" + msgLength +
                 '}';
+    }
+
+    public byte[] convertToBytes() {
+        byte[] fileBytes = ByteConvertUtil.intToBytes(commitLogFileIndex);
+        byte[] msgIndexBytes = ByteConvertUtil.intToBytes(msgIndex);
+        byte[] msgLengthBytes = ByteConvertUtil.intToBytes(msgLength);
+        byte[] mergeBytes = new byte[fileBytes.length + msgIndexBytes.length + msgLengthBytes.length];
+        int index = 0;
+        for (int i = 0; i < fileBytes.length; i++, index++) {
+            mergeBytes[index] = fileBytes[i];
+        }
+        for (int i = 0; i < msgIndexBytes.length; i++, index++) {
+            mergeBytes[index] = msgIndexBytes[i];
+        }
+        for (int i = 0; i < msgLengthBytes.length; i++, index++) {
+            mergeBytes[index] = msgLengthBytes[i];
+        }
+        return mergeBytes;
     }
 }

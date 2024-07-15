@@ -9,9 +9,13 @@ package top.flobby.mq.broker.constant;
 
 public class BrokerConstants {
 
+    public final static String SPLIT = "/";
+
     public final static String FLOBBY_MQ_HOME = "flobby_mq_home";
 
-    public final static String BASE_STORE_PATH = "/commit_log/";
+    public final static String BASE_COMMIT_LOG_PATH = "/commit_log/";
+
+    public final static String BASE_CONSUME_QUEUE_PATH = "/consume_queue/";
 
     public final static Integer MMAP_DEFAULT_START_OFFSET = 0;
 

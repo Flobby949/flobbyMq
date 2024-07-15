@@ -5,10 +5,8 @@ import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
 import top.flobby.mq.broker.model.ConsumerQueueOffsetModel;
-import top.flobby.mq.broker.model.TopicModel;
 import top.flobby.mq.broker.utils.FileContentUtil;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,8 +42,8 @@ public class ConsumerQueueOffsetLoader {
                     // 因为刚启动时从磁盘中同步到内存，不需要立刻刷盘，先休眠一段时间
                     TimeUnit.SECONDS.sleep(BrokerConstants.DEFAULT_REFRESH_CONSUMER_QUEUE_OFFSET_INTERVAL);
                     System.out.println("ConsumerQueueOffset 写入磁盘");
-                    List<TopicModel> topicModelList = CommonCache.getTopicModelList();
-                    FileContentUtil.overwriteToFile(filePath, JSON.toJSONString(topicModelList));
+                    ConsumerQueueOffsetModel consumerQueueOffsetModel = CommonCache.getConsumerQueueOffsetModel();
+                    FileContentUtil.overwriteToFile(filePath, JSON.toJSONString(consumerQueueOffsetModel));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
