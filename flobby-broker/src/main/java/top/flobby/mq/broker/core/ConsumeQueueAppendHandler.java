@@ -34,6 +34,7 @@ public class ConsumeQueueAppendHandler {
             );
             consumeQueueMMapFileModels.add(consumeQueueMMapFileModel);
         }
-        consumeQueueMMapFileModelManager.put(topicName, consumeQueueMMapFileModels);
+        CommonCache.getConsumeQueueMMapFileModelManager().put(topicName, consumeQueueMMapFileModels);
+        ;
     }
 }

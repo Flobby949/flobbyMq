@@ -4,10 +4,7 @@ import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
 import top.flobby.mq.broker.lock.PutMessageLock;
 import top.flobby.mq.broker.lock.UnFailReentrantLock;
-import top.flobby.mq.broker.model.CommitLogMessageModel;
-import top.flobby.mq.broker.model.CommitLogModel;
-import top.flobby.mq.broker.model.ConsumerQueueDetailModel;
-import top.flobby.mq.broker.model.TopicModel;
+import top.flobby.mq.broker.model.*;
 import top.flobby.mq.broker.utils.LogFileNameUtil;
 
 import java.io.File;
@@ -20,6 +17,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -197,6 +195,19 @@ public class MMapFileModel {
         consumerQueueDetail.setCommitLogFileIndex(Integer.parseInt(topicModel.getLatestCommitLog().getFileName()));
         consumerQueueDetail.setMsgLength(writeContent.length);
         consumerQueueDetail.setMsgIndex(msgIndex);
+        byte[] contentArr = consumerQueueDetail.convertToBytes();
+        // TODO 暂时还没传递queueId
+        int queueTempId = 0;
+        List<ConsumeQueueMMapFileModel> queueModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(this.topic);
+        ConsumeQueueMMapFileModel consumeQueueMMapFileModel = queueModelList
+                .stream()
+                .filter(queueModel -> queueModel.getQueueId().equals(queueTempId))
+                .findFirst()
+                .orElse(null);
+        consumeQueueMMapFileModel.writeContent(contentArr);
+        // 刷新 offset
+        QueueModel queueModel = topicModel.getQueueList().get(queueTempId);
+        queueModel.getLatestOffset().addAndGet(contentArr.length);
     }
 
     /**

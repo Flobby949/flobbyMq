@@ -1,5 +1,7 @@
 package top.flobby.mq.broker.model;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author : Flobby
  * @program : flobbyMq
@@ -24,7 +26,7 @@ public class QueueModel {
     /**
      * 最新的写入位置
      */
-    private int latestOffset;
+    private AtomicInteger latestOffset;
     /**
      * 最大偏移量
      */
@@ -54,11 +56,11 @@ public class QueueModel {
         this.lastOffset = lastOffset;
     }
 
-    public int getLatestOffset() {
+    public AtomicInteger getLatestOffset() {
         return latestOffset;
     }
 
-    public void setLatestOffset(int latestOffset) {
+    public void setLatestOffset(AtomicInteger latestOffset) {
         this.latestOffset = latestOffset;
     }
 
@@ -79,5 +81,9 @@ public class QueueModel {
                 ", latestOffset=" + latestOffset +
                 ", offsetLimit=" + offsetLimit +
                 '}';
+    }
+
+    public int countDiff() {
+        return this.getOffsetLimit() - this.getLatestOffset().get();
     }
 }

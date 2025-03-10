@@ -1,6 +1,7 @@
 package top.flobby.mq.broker.cache;
 
 import top.flobby.mq.broker.config.GlobalProperties;
+import top.flobby.mq.broker.core.ConsumeQueueMMapFileModelManager;
 import top.flobby.mq.broker.model.ConsumerQueueOffsetModel;
 import top.flobby.mq.broker.model.TopicModel;
 
@@ -20,10 +21,11 @@ public class CommonCache {
 
     public static GlobalProperties globalProperties = new GlobalProperties();
 
-
     public static List<TopicModel> topicModelList = new ArrayList<>();
 
     public static ConsumerQueueOffsetModel consumerQueueOffsetModel = new ConsumerQueueOffsetModel();
+
+    public static ConsumeQueueMMapFileModelManager consumeQueueMMapFileModelManager = new ConsumeQueueMMapFileModelManager();
 
     public static List<TopicModel> getTopicModelList() {
         return topicModelList;
@@ -51,5 +53,13 @@ public class CommonCache {
 
     public static void setConsumerQueueOffsetModel(ConsumerQueueOffsetModel consumerQueueOffsetModel) {
         CommonCache.consumerQueueOffsetModel = consumerQueueOffsetModel;
+    }
+
+    public static ConsumeQueueMMapFileModelManager getConsumeQueueMMapFileModelManager() {
+        return consumeQueueMMapFileModelManager;
+    }
+
+    public static void setConsumeQueueMMapFileModelManager(ConsumeQueueMMapFileModelManager consumeQueueMMapFileModelManager) {
+        CommonCache.consumeQueueMMapFileModelManager = consumeQueueMMapFileModelManager;
     }
 }

@@ -115,5 +115,35 @@ public class ConsumeQueueMMapFileModel {
         return newFilePath;
     }
 
+    /**
+     * 编写内容
+     *
+     * @param content 内容
+     * @param force   力
+     */
+    public void writeContent(byte[] content, boolean force) {
+        try {
+            putMessageLock.lock();
+            mappedByteBuffer.put(content);
+            if (force) {
+                mappedByteBuffer.force();
+            }
+        } catch (Exception e) {
 
+        } finally {
+            putMessageLock.unlock();
+        }
+    }
+
+    public void writeContent(byte[] content) {
+        this.writeContent(content, false);
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public Integer getQueueId() {
+        return queueId;
+    }
 }

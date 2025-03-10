@@ -1,5 +1,6 @@
 package top.flobby.mq.broker.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -28,8 +29,8 @@ public class ConsumerQueueOffsetModel {
                 '}';
     }
 
-    private class OffsetTable {
-        private Map<String, ConsumerGroupDetail> topicConsumerGroupDetail;
+    public class OffsetTable {
+        private Map<String, ConsumerGroupDetail> topicConsumerGroupDetail = new HashMap<>();
 
         public Map<String, ConsumerGroupDetail> getTopicConsumerGroupDetail() {
             return topicConsumerGroupDetail;
@@ -47,8 +48,8 @@ public class ConsumerQueueOffsetModel {
         }
     }
 
-    private class ConsumerGroupDetail {
-        private Map<String, Map<String, String>> consumerGroupDetailMap;
+    public static class ConsumerGroupDetail {
+        private Map<String, Map<String, String>> consumerGroupDetailMap = new HashMap<>();
 
         public Map<String, Map<String, String>> getConsumerGroupDetailMap() {
             return consumerGroupDetailMap;
