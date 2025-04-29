@@ -43,19 +43,19 @@ public class ConsumeQueueMMapFileModel {
     /**
      * 在 MMAP 中加载文件
      *
-     * @param topicName   主题名称
-     * @param queueId     队列 ID
-     * @param startOffset 起始偏移量
-     * @param mappedSize  映射大小
-     * @throws IOException ioException
+     * @param topicName         主题名称
+     * @param queueId           队列 ID
+     * @param startOffset       起始偏移量
+     * @param latestWriteOffset 最新写入偏移量
+     * @param mappedSize        映射大小
+     * @throws IOException io异常
      */
-    public void loadFileInMMap(String topicName, int queueId, String consumeQueueFileName, int startOffset, int mappedSize) throws IOException {
+    public void loadFileInMMap(String topicName, int queueId, int startOffset, int latestWriteOffset, int mappedSize) throws IOException {
         // 持久化topicName
         this.topic = topicName;
         this.queueId = queueId;
-        this.consumeQueueFileName = consumeQueueFileName;
         String filePath = this.getLatestConsumeQueueFilePath();
-        this.doMMap(filePath, startOffset, mappedSize);
+        this.doMMap(filePath, startOffset, latestWriteOffset, mappedSize);
         // 接口模式，配置非公平锁
         putMessageLock = new UnFailReentrantLock();
     }
@@ -68,7 +68,7 @@ public class ConsumeQueueMMapFileModel {
      * @param mappedSize  映射大小
      * @throws IOException io异常
      */
-    private void doMMap(String filePath, int startOffset, int mappedSize) throws IOException {
+    private void doMMap(String filePath, int startOffset, int latestWriteOffset, int mappedSize) throws IOException {
         file = new File(filePath);
         // 文件不存在，抛出异常
         if (!file.exists()) {
@@ -78,10 +78,13 @@ public class ConsumeQueueMMapFileModel {
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, startOffset, mappedSize);
         // 构造一个新的buffer，独立于写入的buffer
         readBuffer = mappedByteBuffer.slice();
+        // 重新定位到即将写入数据的位置
+        mappedByteBuffer.position(latestWriteOffset);
     }
 
     /**
      * 获取最新消费队列文件路径
+     *
      * @return {@link String }
      */
     private String getLatestConsumeQueueFilePath() {
@@ -104,7 +107,7 @@ public class ConsumeQueueMMapFileModel {
             // 还有机会写入
             filePath = LogFileNameUtil.buildConsumeQueueFilePath(this.topic, this.queueId, queueModel.getFileName());
         }
-        System.out.println("latestCommitQueueFilePath=" + filePath);
+        // System.out.println("latestCommitQueueFilePath=" + filePath);
         return filePath;
     }
 

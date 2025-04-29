@@ -1,6 +1,5 @@
 package top.flobby.mq.broker.core;
 
-import com.alibaba.fastjson2.JSON;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.model.ConsumeQueueDetailModel;
 import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
@@ -44,10 +43,10 @@ public class ConsumeQueueConsumeHandler {
         Map<String, Map<String, String>> consumeGroupOffsetMap = consumerGroupDetail.getConsumerGroupDetailMap();
         Map<String, String> queueOffsetDetail = consumeGroupOffsetMap.get(consumeGroup);
         // 如果detail不存在，那就初始化
+        List<QueueModel> queueList = topicModel.getQueueList();
         if (queueOffsetDetail == null || queueOffsetDetail.isEmpty()) {
             queueOffsetDetail = new HashMap<>();
             // 每一个topic的队列
-            List<QueueModel> queueList = topicModel.getQueueList();
             for (QueueModel queueModel : queueList) {
                 // 初始化时默认塞入0号文件
                 queueOffsetDetail.put(String.valueOf(queueModel.getId()), "00000000#0");
@@ -59,6 +58,11 @@ public class ConsumeQueueConsumeHandler {
         String[] offsetArr = offsetStrInfo.split("#");
         // String consumeQueueFileName = offsetArr[0];
         Integer consumeQueueOffset = Integer.parseInt(offsetArr[1]);
+        // 如果消费到了尽头，当前queue的消息offset小于了当前消费queue的消费offset，返回null
+        QueueModel queueModel = queueList.get(queueId);
+        if (queueModel.getLatestOffset().get() <= consumeQueueOffset) {
+            return null;
+        }
         // 通过queue映射的mmap，获取到具体的数据
         List<ConsumeQueueMMapFileModel> consumeQueueMMapFileModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(topic);
         ConsumeQueueMMapFileModel consumeQueueMMapFileModel = consumeQueueMMapFileModelList.get(queueId);
@@ -66,7 +70,7 @@ public class ConsumeQueueConsumeHandler {
         ConsumeQueueDetailModel consumeQueueDetailModel = new ConsumeQueueDetailModel();
         // 获取到消息的位置信息
         consumeQueueDetailModel.convertToModel(content);
-        System.out.println("consumeQueueDetailModel: " + JSON.toJSONString(consumeQueueDetailModel));
+        // System.out.println("consumeQueueDetailModel: " + JSON.toJSONString(consumeQueueDetailModel));
         CommitLogMMapFileModel commitLogMMapFileModel = CommonCache.getCommitLogMMapFileModelManager().get(topic);
         return commitLogMMapFileModel.readContent(consumeQueueDetailModel.getMsgIndex(), consumeQueueDetailModel.getMsgLength());
     }

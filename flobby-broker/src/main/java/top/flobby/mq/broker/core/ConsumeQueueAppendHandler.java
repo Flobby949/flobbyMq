@@ -16,7 +16,6 @@ import java.util.List;
  **/
 
 public class ConsumeQueueAppendHandler {
-    private ConsumeQueueMMapFileModelManager consumeQueueMMapFileModelManager;
 
     public void prepareConsumeQueue (String topicName) throws IOException {
         TopicModel topicModel = CommonCache.getTopicModelMap().get(topicName);
@@ -29,8 +28,8 @@ public class ConsumeQueueAppendHandler {
             consumeQueueMMapFileModel.loadFileInMMap(
                     topicName,
                     queue.getId(),
-                    queue.getFileName(),
                     queue.getLastOffset(),
+                    queue.getLatestOffset().get(),
                     queue.getOffsetLimit()
             );
             consumeQueueMMapFileModels.add(consumeQueueMMapFileModel);

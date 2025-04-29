@@ -71,6 +71,9 @@ public class CommitLogMMapFileModel {
         fileChannel = new RandomAccessFile(file, "rw").getChannel();
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, startOffset, mappedSize);
         readByteBuffer = mappedByteBuffer.slice();
+        // 定位到最新的offset
+        TopicModel topicModel = CommonCache.getTopicModelMap().get(topic);
+        mappedByteBuffer.position(topicModel.getLatestCommitLog().getOffset().get());
     }
 
     /**
@@ -94,7 +97,7 @@ public class CommitLogMMapFileModel {
             // 还有机会写入
             filePath = LogFileNameUtil.buildCommitLogFilePath(topicName, latestCommitLog.getFileName());
         }
-        System.out.println("latestCommitLogFilePath=" + latestCommitLog.getFileName());
+        // System.out.println("latestCommitLogFilePath=" + latestCommitLog.getFileName());
         return filePath;
     }
 
@@ -201,7 +204,7 @@ public class CommitLogMMapFileModel {
         System.out.println("写入 consumeQueue 内容：" +JSON.toJSONString(consumerQueueDetail));
         byte[] contentArr = consumerQueueDetail.convertToBytes();
         consumerQueueDetail.convertToModel(contentArr);
-        System.out.println("从byte中转换 consumeQueue 内容：" +JSON.toJSONString(consumerQueueDetail));
+        // System.out.println("从byte中转换 consumeQueue 内容：" +JSON.toJSONString(consumerQueueDetail));
         // TODO 暂时还没传递queueId
         int queueTempId = 0;
         List<ConsumeQueueMMapFileModel> queueModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(this.topic);

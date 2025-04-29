@@ -11,6 +11,7 @@ import top.flobby.mq.broker.model.TopicModel;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author : Flobby
@@ -33,15 +34,62 @@ public class BrokerStartUp {
         // 加载配置，缓存对象生成
         initProperties();
         // 模拟初始化文件映射
+        //模拟初始化文件映射
         String topic = "order_cancel_topic";
-        String consumeGroup = "user_service_group";
-        for (int i = 1; i < 15; i++) {
-            // commitLogAppendHandler.appendMsg(topic, ("this is content " + i).getBytes());
-            byte[] content = consumeQueueConsumeHandler.consume(topic, consumeGroup, 0);
-            System.out.println("消费消息：" + new String(content));
-            consumeQueueConsumeHandler.ack(topic, consumeGroup, 0);
-            TimeUnit.SECONDS.sleep(3);
-        }
+        String userServiceConsumeGroup = "user_service_group";
+        String orderServiceConsumeGroup = "order_service_group";
+        new Thread(() -> {
+            while (true) {
+                byte[] content = consumeQueueConsumeHandler.consume(topic, userServiceConsumeGroup, 0);
+                if (content != null && content.length != 0) {
+                    System.out.println(userServiceConsumeGroup + ",消费内容:" + new String(content));
+                    consumeQueueConsumeHandler.ack(topic, userServiceConsumeGroup, 0);
+                } else {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }).start();
+
+        new Thread(() -> {
+            while (true) {
+                byte[] content = consumeQueueConsumeHandler.consume(topic, orderServiceConsumeGroup, 0);
+                if (content != null) {
+                    System.out.println(orderServiceConsumeGroup + ",消费内容:" + new String(content));
+                    consumeQueueConsumeHandler.ack(topic, orderServiceConsumeGroup, 0);
+                } else {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }).start();
+
+        AtomicInteger i = new AtomicInteger();
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            while (true) {
+                try {
+                    commitLogAppendHandler.appendMsg(topic, ("message_" + (i.getAndIncrement())).getBytes());
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
+
+        System.out.println("开始多线程消费验证");
     }
 
     /**
