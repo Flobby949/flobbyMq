@@ -9,12 +9,13 @@ import top.flobby.mq.broker.utils.ByteConvertUtil;
  * @create : 2024-06-13 09:17
  **/
 
-public class ConsumerQueueDetailModel {
+public class ConsumeQueueDetailModel {
 
     /**
      * commitLog 文件名
+     * 4 byte
      */
-    private int commitLogFileIndex;
+    private int commitLogFileName;
 
     /**
      * 消息开始索引
@@ -26,12 +27,12 @@ public class ConsumerQueueDetailModel {
      */
     private int msgLength;
 
-    public int getCommitLogFileIndex() {
-        return commitLogFileIndex;
+    public int getCommitLogFileName() {
+        return commitLogFileName;
     }
 
-    public void setCommitLogFileIndex(int commitLogFileIndex) {
-        this.commitLogFileIndex = commitLogFileIndex;
+    public void setCommitLogFileName(int commitLogFileName) {
+        this.commitLogFileName = commitLogFileName;
     }
 
     public int getMsgIndex() {
@@ -53,14 +54,14 @@ public class ConsumerQueueDetailModel {
     @Override
     public String toString() {
         return "ConsumerQueueDetailModel{" +
-                "commitLogFileName='" + commitLogFileIndex + '\'' +
+                "commitLogFileName='" + commitLogFileName + '\'' +
                 ", msgIndex=" + msgIndex +
                 ", msgLength=" + msgLength +
                 '}';
     }
 
     public byte[] convertToBytes() {
-        byte[] fileBytes = ByteConvertUtil.intToBytes(commitLogFileIndex);
+        byte[] fileBytes = ByteConvertUtil.intToBytes(commitLogFileName);
         byte[] msgIndexBytes = ByteConvertUtil.intToBytes(msgIndex);
         byte[] msgLengthBytes = ByteConvertUtil.intToBytes(msgLength);
         byte[] mergeBytes = new byte[fileBytes.length + msgIndexBytes.length + msgLengthBytes.length];
@@ -75,5 +76,17 @@ public class ConsumerQueueDetailModel {
             mergeBytes[index] = msgLengthBytes[i];
         }
         return mergeBytes;
+    }
+
+    public void convertToModel(byte[] body) {
+        // 0-3 -> 文件名
+        byte[] fileName = ByteConvertUtil.readInPos(body, 0, 4);
+        this.setCommitLogFileName(ByteConvertUtil.bytesToInt(fileName));
+        // 4-7 -> msg当前的index
+        byte[] msgIndex = ByteConvertUtil.readInPos(body, 4, 4);
+        this.setCommitLogFileName(ByteConvertUtil.bytesToInt(msgIndex));
+        // 8-11 -> msg的长度
+        byte[] msgLength = ByteConvertUtil.readInPos(body, 8, 4);
+        this.setCommitLogFileName(ByteConvertUtil.bytesToInt(msgLength));
     }
 }

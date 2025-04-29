@@ -10,7 +10,7 @@ import java.util.Map;
  * @create : 2024-06-13 10:33
  **/
 
-public class ConsumerQueueOffsetModel {
+public class ConsumeQueueOffsetModel {
 
     private OffsetTable offsetTable;
 

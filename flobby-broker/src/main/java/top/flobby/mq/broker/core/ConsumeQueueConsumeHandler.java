@@ -1,9 +1,14 @@
 package top.flobby.mq.broker.core;
 
+import com.alibaba.fastjson2.JSON;
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.broker.model.ConsumerQueueOffsetModel;
+import top.flobby.mq.broker.model.ConsumeQueueDetailModel;
+import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
+import top.flobby.mq.broker.model.QueueModel;
 import top.flobby.mq.broker.model.TopicModel;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,17 +33,40 @@ public class ConsumeQueueConsumeHandler {
         if (topicModel == null) {
             throw new IllegalArgumentException("topic 【" + topic + "】is null");
         }
-        ConsumerQueueOffsetModel.OffsetTable offsetTable = CommonCache.getConsumerQueueOffsetModel().getOffsetTable();
-        Map<String, ConsumerQueueOffsetModel.ConsumerGroupDetail> topicConsumerGroupDetailMap = offsetTable.getTopicConsumerGroupDetail();
-        ConsumerQueueOffsetModel.ConsumerGroupDetail consumerGroupDetail = topicConsumerGroupDetailMap.get(topic);
+        ConsumeQueueOffsetModel.OffsetTable offsetTable = CommonCache.getConsumerQueueOffsetModel().getOffsetTable();
+        Map<String, ConsumeQueueOffsetModel.ConsumerGroupDetail> topicConsumerGroupDetailMap = offsetTable.getTopicConsumerGroupDetail();
+        ConsumeQueueOffsetModel.ConsumerGroupDetail consumerGroupDetail = topicConsumerGroupDetailMap.get(topic);
         // 如果是首次消费，初始化
         if (consumerGroupDetail == null) {
-            consumerGroupDetail = new ConsumerQueueOffsetModel.ConsumerGroupDetail();
+            consumerGroupDetail = new ConsumeQueueOffsetModel.ConsumerGroupDetail();
             topicConsumerGroupDetailMap.put(topic, consumerGroupDetail);
         }
         Map<String, Map<String, String>> consumeGroupOffsetMap = consumerGroupDetail.getConsumerGroupDetailMap();
         Map<String, String> queueOffsetDetail = consumeGroupOffsetMap.get(consumeGroup);
-
+        // 如果detail不存在，那就初始化
+        if (queueOffsetDetail == null || queueOffsetDetail.isEmpty()) {
+            queueOffsetDetail = new HashMap<>();
+            // 每一个topic的队列
+            List<QueueModel> queueList = topicModel.getQueueList();
+            for (QueueModel queueModel : queueList) {
+                // 初始化时默认塞入0号文件
+                queueOffsetDetail.put(String.valueOf(queueModel.getId()), "00000000#0");
+            }
+            consumeGroupOffsetMap.put(consumeGroup, queueOffsetDetail);
+        }
+        // 取出当前queue的offset信息，格式：00000000#0
+        String offsetStrInfo = queueOffsetDetail.get(String.valueOf(queueId));
+        String[] offsetArr = offsetStrInfo.split("#");
+        // String consumeQueueFileName = offsetArr[0];
+        Integer consumeQueueOffset = Integer.parseInt(offsetArr[1]);
+        // 通过queue映射的mmap，获取到具体的数据
+        List<ConsumeQueueMMapFileModel> consumeQueueMMapFileModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(topic);
+        ConsumeQueueMMapFileModel consumeQueueMMapFileModel = consumeQueueMMapFileModelList.get(queueId);
+        byte[] content = consumeQueueMMapFileModel.readContent(consumeQueueOffset);
+        ConsumeQueueDetailModel consumeQueueDetailModel = new ConsumeQueueDetailModel();
+        // 获取到消息的位置信息
+        consumeQueueDetailModel.convertToModel(content);
+        System.out.println("consumeQueueDetailModel: "+JSON.toJSONString(consumeQueueDetailModel));
         return null;
 
     }

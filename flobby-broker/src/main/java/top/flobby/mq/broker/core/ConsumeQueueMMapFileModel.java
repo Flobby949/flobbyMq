@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
@@ -27,10 +28,17 @@ public class ConsumeQueueMMapFileModel {
 
     private File file;
     private MappedByteBuffer mappedByteBuffer;
+    private ByteBuffer readBuffer;
     private FileChannel fileChannel;
     private String topic;
     private Integer queueId;
+    private String consumeQueueFileName;
     private PutMessageLock putMessageLock;
+
+    /**
+     * 每一段msg的长度都是12byte，写一个常量管理
+     */
+    public static final Integer CONSUME_QUEUE_UNIT_SIZE = 12;
 
     /**
      * 在 MMAP 中加载文件
@@ -41,10 +49,11 @@ public class ConsumeQueueMMapFileModel {
      * @param mappedSize  映射大小
      * @throws IOException ioException
      */
-    public void loadFileInMMap(String topicName, int queueId, int startOffset, int mappedSize) throws IOException {
+    public void loadFileInMMap(String topicName, int queueId, String consumeQueueFileName, int startOffset, int mappedSize) throws IOException {
         // 持久化topicName
         this.topic = topicName;
         this.queueId = queueId;
+        this.consumeQueueFileName = consumeQueueFileName;
         String filePath = this.getLatestConsumeQueueFilePath();
         this.doMMap(filePath, startOffset, mappedSize);
         // 接口模式，配置非公平锁
@@ -67,6 +76,8 @@ public class ConsumeQueueMMapFileModel {
         }
         fileChannel = new RandomAccessFile(file, "rw").getChannel();
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, startOffset, mappedSize);
+        // 构造一个新的buffer，独立于写入的buffer
+        readBuffer = mappedByteBuffer.slice();
     }
 
     /**
@@ -93,6 +104,7 @@ public class ConsumeQueueMMapFileModel {
             // 还有机会写入
             filePath = LogFileNameUtil.buildConsumeQueueFilePath(this.topic, this.queueId, queueModel.getFileName());
         }
+        System.out.println("latestCommitQueueFilePath=" + filePath);
         return filePath;
     }
 
@@ -137,6 +149,22 @@ public class ConsumeQueueMMapFileModel {
 
     public void writeContent(byte[] content) {
         this.writeContent(content, false);
+    }
+
+    /**
+     * 阅读内容
+     *
+     * @param position
+     * @return {@link byte[] }
+     */
+    public byte[] readContent(Integer position) {
+        // 独立打开一个readBuffer，线程之间相互独立，不影响其他线程
+        ByteBuffer readBuf = readBuffer.slice();
+        readBuf.position(position);
+        // 每一段msg的长度都是12byte
+        byte[] content = new byte[CONSUME_QUEUE_UNIT_SIZE];
+        readBuf.get(content);
+        return content;
     }
 
     public String getTopic() {

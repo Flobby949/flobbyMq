@@ -1,5 +1,6 @@
 package top.flobby.mq.broker.config;
 
+import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
 
@@ -18,7 +19,7 @@ public class GlobalPropertiesLoader {
         globalProperties = new GlobalProperties();
         // 将项目路径配置在启动参数中，否则空指针报错
         String mqHome = System.getProperty(BrokerConstants.FLOBBY_MQ_HOME);
-        if (mqHome == null) {
+        if (StringUtil.isNullOrEmpty(mqHome)) {
             throw new IllegalArgumentException("FLOBBY_MQ_HOME is null");
         }
         globalProperties.setMqHome(mqHome);

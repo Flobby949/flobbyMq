@@ -31,7 +31,9 @@ build/
 ### VS Code ###
 .vscode/
 
+.DS_Store
+
 /broker/store
 /broker/commit_log
-/broker/consumer_queue
+/broker/consume_queue
 /arthas-output

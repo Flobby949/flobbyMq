@@ -29,12 +29,13 @@ public class ConsumeQueueAppendHandler {
             consumeQueueMMapFileModel.loadFileInMMap(
                     topicName,
                     queue.getId(),
+                    queue.getFileName(),
                     queue.getLastOffset(),
                     queue.getOffsetLimit()
             );
             consumeQueueMMapFileModels.add(consumeQueueMMapFileModel);
         }
         CommonCache.getConsumeQueueMMapFileModelManager().put(topicName, consumeQueueMMapFileModels);
-        ;
+
     }
 }

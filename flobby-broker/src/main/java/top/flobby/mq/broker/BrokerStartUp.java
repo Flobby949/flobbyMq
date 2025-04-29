@@ -6,6 +6,7 @@ import top.flobby.mq.broker.config.GlobalPropertiesLoader;
 import top.flobby.mq.broker.config.TopicModelInfoLoader;
 import top.flobby.mq.broker.core.CommitLogAppendHandler;
 import top.flobby.mq.broker.core.ConsumeQueueAppendHandler;
+import top.flobby.mq.broker.core.ConsumeQueueConsumeHandler;
 import top.flobby.mq.broker.model.TopicModel;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class BrokerStartUp {
     private static CommitLogAppendHandler commitLogAppendHandler;
     private static ConsumerQueueOffsetLoader consumerQueueOffsetLoader;
     private static ConsumeQueueAppendHandler consumeQueueAppendHandler;
+    private static ConsumeQueueConsumeHandler consumeQueueConsumeHandler;
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -32,9 +34,11 @@ public class BrokerStartUp {
         initProperties();
         // 模拟初始化文件映射
         String topic = "order_cancel_topic";
-        for (int i = 0; i < 50; i++) {
+        String consumeGroup = "user_service_group";
+        for (int i = 0; i < 5; i++) {
             commitLogAppendHandler.appendMsg(topic, ("this is content " + i).getBytes());
-            TimeUnit.SECONDS.sleep(1);
+            // consumeQueueConsumeHandler.consume(topic, consumeGroup, 0);
+            TimeUnit.SECONDS.sleep(3);
         }
         commitLogAppendHandler.readMsg(topic);
     }
@@ -44,15 +48,18 @@ public class BrokerStartUp {
      */
     private static void initProperties() throws IOException {
         globalPropertiesLoader = new GlobalPropertiesLoader();
-        globalPropertiesLoader.loadProperties();
         topicModelInfoLoader = new TopicModelInfoLoader();
+        consumerQueueOffsetLoader = new ConsumerQueueOffsetLoader();
+        commitLogAppendHandler = new CommitLogAppendHandler();
+        consumeQueueAppendHandler = new ConsumeQueueAppendHandler();
+        consumeQueueConsumeHandler = new ConsumeQueueConsumeHandler();
+
+        globalPropertiesLoader.loadProperties();
         topicModelInfoLoader.loadProperties();
         topicModelInfoLoader.startRefreshMqTopicInfoTask();
-        consumerQueueOffsetLoader = new ConsumerQueueOffsetLoader();
         consumerQueueOffsetLoader.loadProperties();
         consumerQueueOffsetLoader.startRefreshConsumerQueueOffsetTask();
 
-        commitLogAppendHandler = new CommitLogAppendHandler();
         for (TopicModel topicModel : CommonCache.getTopicModelList()) {
             String topicName = topicModel.getTopic();
             commitLogAppendHandler.prepareMMapLoading(topicName);

@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
 public class MMapUtilTest {
 
     MMapUtil mMapUtil;
-    String filePath = "F:\\flobbyMq\\broker\\store\\order_cancel_topic\\00000000";
+    String filePath = "/Users/flobby/IdeaProjects/flobbyMq/broker/store/order_cancel_topic/00000000";
 
     @Test
     public void readContent() throws IOException {

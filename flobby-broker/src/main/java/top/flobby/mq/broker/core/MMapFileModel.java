@@ -1,5 +1,6 @@
 package top.flobby.mq.broker.core;
 
+import com.alibaba.fastjson2.JSON;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
 import top.flobby.mq.broker.lock.PutMessageLock;
@@ -64,7 +65,7 @@ public class MMapFileModel {
         file = new File(filePath);
         // 文件不存在，抛出异常
         if (!file.exists()) {
-            throw new FileNotFoundException("filePath is " + filePath + "inValid！");
+            throw new FileNotFoundException("filePath is " + filePath + " inValid！");
         }
         fileChannel = new RandomAccessFile(file, "rw").getChannel();
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, startOffset, mappedSize);
@@ -91,6 +92,7 @@ public class MMapFileModel {
             // 还有机会写入
             filePath = LogFileNameUtil.buildCommitLogFilePath(topicName, latestCommitLog.getFileName());
         }
+        System.out.println("latestCommitLogFilePath=" + latestCommitLog.getFileName());
         return filePath;
     }
 
@@ -191,11 +193,14 @@ public class MMapFileModel {
         if (topicModel == null) {
             throw new IllegalArgumentException("topic is undefined! topicName=" + topic);
         }
-        ConsumerQueueDetailModel consumerQueueDetail = new ConsumerQueueDetailModel();
-        consumerQueueDetail.setCommitLogFileIndex(Integer.parseInt(topicModel.getLatestCommitLog().getFileName()));
+        ConsumeQueueDetailModel consumerQueueDetail = new ConsumeQueueDetailModel();
+        consumerQueueDetail.setCommitLogFileName(Integer.parseInt(topicModel.getLatestCommitLog().getFileName()));
         consumerQueueDetail.setMsgLength(writeContent.length);
         consumerQueueDetail.setMsgIndex(msgIndex);
+        System.out.println("写入 consumeQueue 内容：" +JSON.toJSONString(consumerQueueDetail));
         byte[] contentArr = consumerQueueDetail.convertToBytes();
+        consumerQueueDetail.convertToModel(contentArr);
+        System.out.println("从byte中转换 consumeQueue 内容：" +JSON.toJSONString(consumerQueueDetail));
         // TODO 暂时还没传递queueId
         int queueTempId = 0;
         List<ConsumeQueueMMapFileModel> queueModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(this.topic);

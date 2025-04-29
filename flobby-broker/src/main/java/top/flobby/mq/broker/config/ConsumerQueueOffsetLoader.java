@@ -1,10 +1,11 @@
 package top.flobby.mq.broker.config;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONWriter;
 import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
-import top.flobby.mq.broker.model.ConsumerQueueOffsetModel;
+import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
 import top.flobby.mq.broker.utils.FileContentUtil;
 
 import java.util.concurrent.TimeUnit;
@@ -26,10 +27,10 @@ public class ConsumerQueueOffsetLoader {
         if (StringUtil.isNullOrEmpty(basePath)) {
             throw new IllegalArgumentException("FLOBBY_MQ_HOME is inValid!");
         }
-        filePath = basePath + "/config/consumer_queue-offset.json";
+        filePath = basePath + "/config/consume_queue-offset.json";
         String fileContent = FileContentUtil.readFromFile(filePath);
-        ConsumerQueueOffsetModel consumerQueueOffsetModel = JSON.parseObject(fileContent, ConsumerQueueOffsetModel.class);
-        CommonCache.setConsumerQueueOffsetModel(consumerQueueOffsetModel);
+        ConsumeQueueOffsetModel consumeQueueOffsetModel = JSON.parseObject(fileContent, ConsumeQueueOffsetModel.class);
+        CommonCache.setConsumerQueueOffsetModel(consumeQueueOffsetModel);
     }
 
     /**
@@ -42,8 +43,8 @@ public class ConsumerQueueOffsetLoader {
                     // 因为刚启动时从磁盘中同步到内存，不需要立刻刷盘，先休眠一段时间
                     TimeUnit.SECONDS.sleep(BrokerConstants.DEFAULT_REFRESH_CONSUMER_QUEUE_OFFSET_INTERVAL);
                     System.out.println("ConsumerQueueOffset 写入磁盘");
-                    ConsumerQueueOffsetModel consumerQueueOffsetModel = CommonCache.getConsumerQueueOffsetModel();
-                    FileContentUtil.overwriteToFile(filePath, JSON.toJSONString(consumerQueueOffsetModel));
+                    ConsumeQueueOffsetModel consumeQueueOffsetModel = CommonCache.getConsumerQueueOffsetModel();
+                    FileContentUtil.overwriteToFile(filePath, JSON.toJSONString(consumeQueueOffsetModel, JSONWriter.Feature.PrettyFormat));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

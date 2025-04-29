@@ -1,6 +1,7 @@
 package top.flobby.mq.broker.config;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONWriter;
 import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
@@ -46,7 +47,7 @@ public class TopicModelInfoLoader {
                     TimeUnit.SECONDS.sleep(BrokerConstants.DEFAULT_REFRESH_MQ_TOPIC_INTERVAL);
                     System.out.println("CommitLog 写入磁盘");
                     List<TopicModel> topicModelList = CommonCache.getTopicModelList();
-                    FileContentUtil.overwriteToFile(filePath, JSON.toJSONString(topicModelList));
+                    FileContentUtil.overwriteToFile(filePath, JSON.toJSONString(topicModelList, JSONWriter.Feature.PrettyFormat));
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
