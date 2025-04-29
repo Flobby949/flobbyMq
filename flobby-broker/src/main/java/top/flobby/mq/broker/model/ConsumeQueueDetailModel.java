@@ -84,9 +84,9 @@ public class ConsumeQueueDetailModel {
         this.setCommitLogFileName(ByteConvertUtil.bytesToInt(fileName));
         // 4-7 -> msg当前的index
         byte[] msgIndex = ByteConvertUtil.readInPos(body, 4, 4);
-        this.setCommitLogFileName(ByteConvertUtil.bytesToInt(msgIndex));
+        this.setMsgIndex(ByteConvertUtil.bytesToInt(msgIndex));
         // 8-11 -> msg的长度
         byte[] msgLength = ByteConvertUtil.readInPos(body, 8, 4);
-        this.setCommitLogFileName(ByteConvertUtil.bytesToInt(msgLength));
+        this.setMsgLength(ByteConvertUtil.bytesToInt(msgLength));
     }
 }

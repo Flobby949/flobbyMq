@@ -1,5 +1,6 @@
 package top.flobby.mq.broker.core;
 
+import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.broker.constant.BrokerConstants;
 import top.flobby.mq.broker.model.CommitLogMessageModel;
 
@@ -14,17 +15,15 @@ import java.io.IOException;
 
 public class CommitLogAppendHandler {
 
-    private MMapFileModelManager mMapFileModelManager = new MMapFileModelManager();
-
     /**
      * MMap 预加载
      *
      * @throws IOException io异常
      */
     public void prepareMMapLoading(String topicName) throws IOException {
-        MMapFileModel mMapFileModel = new MMapFileModel();
-        mMapFileModel.loadFileInMMap(topicName, BrokerConstants.MMAP_DEFAULT_START_OFFSET, BrokerConstants.COMMIT_LOG_DEFAULT_MMAP_SIZE);
-        mMapFileModelManager.put(topicName, mMapFileModel);
+        CommitLogMMapFileModel commitLogMMapFileModel = new CommitLogMMapFileModel();
+        commitLogMMapFileModel.loadFileInMMap(topicName, BrokerConstants.MMAP_DEFAULT_START_OFFSET, BrokerConstants.COMMIT_LOG_DEFAULT_MMAP_SIZE);
+        CommonCache.getCommitLogMMapFileModelManager().put(topicName, commitLogMMapFileModel);
     }
 
     /**
@@ -34,22 +33,14 @@ public class CommitLogAppendHandler {
      * @param content 内容
      */
     public void appendMsg(String topic, byte[] content) throws IOException {
-        MMapFileModel mMapFileModel = mMapFileModelManager.get(topic);
-        if (mMapFileModel == null) {
+        CommitLogMMapFileModel commitLogMMapFileModel =  CommonCache.getCommitLogMMapFileModelManager().get(topic);
+        if (commitLogMMapFileModel == null) {
             throw new RuntimeException("topic is not exist");
         }
         CommitLogMessageModel commitLogMessageModel = new CommitLogMessageModel();
         commitLogMessageModel.setContent(content);
         // commitLogMessageModel.setSize(content.length);
-        mMapFileModel.writeContent(commitLogMessageModel);
+        commitLogMMapFileModel.writeContent(commitLogMessageModel);
     }
 
-    public void readMsg(String topic) {
-        MMapFileModel mMapFileModel = mMapFileModelManager.get(topic);
-        if (mMapFileModel == null) {
-            throw new RuntimeException("topic is not exist");
-        }
-        byte[] readContent = mMapFileModel.readContent(0, 1000);
-        System.out.println(new String(readContent));
-    }
 }

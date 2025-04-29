@@ -28,11 +28,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @create : 2024-06-12 09:42
  **/
 
-public class MMapFileModel {
+public class CommitLogMMapFileModel {
 
     private String topic;
     private File file;
     private MappedByteBuffer mappedByteBuffer;
+    private ByteBuffer readByteBuffer;
     private FileChannel fileChannel;
     private PutMessageLock putMessageLock;
 
@@ -69,6 +70,7 @@ public class MMapFileModel {
         }
         fileChannel = new RandomAccessFile(file, "rw").getChannel();
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, startOffset, mappedSize);
+        readByteBuffer = mappedByteBuffer.slice();
     }
 
     /**
@@ -120,19 +122,14 @@ public class MMapFileModel {
      * 文件从指定的 offset 开始读取
      *
      * @param readOffset 读取偏移量
-     * @param size       大小
+     * @param len       大小
      * @return {@link byte[] }
      */
-    public byte[] readContent(int readOffset, int size) {
-        // 定位到指定 offset
-        mappedByteBuffer.position(readOffset);
-        byte[] content = new byte[size];
-        int j = 0;
-        for (int i = 0; i < size; i++) {
-            // 从内存中访问，效率非常高
-            byte b = mappedByteBuffer.get(readOffset + i);
-            content[j++] = b;
-        }
+    public byte[] readContent(int readOffset, int len) {
+        ByteBuffer readBuf = readByteBuffer.slice();
+        readBuf.position(readOffset);
+        byte[] content = new byte[len];
+        readBuf.get(content);
         return content;
     }
 
@@ -180,6 +177,10 @@ public class MMapFileModel {
             mappedByteBuffer.force();
         }
         putMessageLock.unlock();
+    }
+
+    public void writeContent(CommitLogMessageModel commitLogMessageModel) throws IOException {
+        this.writeContent(commitLogMessageModel, false);
     }
 
     /**
@@ -236,10 +237,6 @@ public class MMapFileModel {
             // 映射新 mmap
             this.doMMap(commitLogFile.getNewFilePath(), BrokerConstants.MMAP_DEFAULT_START_OFFSET, BrokerConstants.COMMIT_LOG_DEFAULT_MMAP_SIZE);
         }
-    }
-
-    public void writeContent(CommitLogMessageModel commitLogMessageModel) throws IOException {
-        this.writeContent(commitLogMessageModel, false);
     }
 
     /**

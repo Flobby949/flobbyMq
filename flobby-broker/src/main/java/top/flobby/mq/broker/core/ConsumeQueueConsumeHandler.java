@@ -66,17 +66,28 @@ public class ConsumeQueueConsumeHandler {
         ConsumeQueueDetailModel consumeQueueDetailModel = new ConsumeQueueDetailModel();
         // 获取到消息的位置信息
         consumeQueueDetailModel.convertToModel(content);
-        System.out.println("consumeQueueDetailModel: "+JSON.toJSONString(consumeQueueDetailModel));
-        return null;
-
+        System.out.println("consumeQueueDetailModel: " + JSON.toJSONString(consumeQueueDetailModel));
+        CommitLogMMapFileModel commitLogMMapFileModel = CommonCache.getCommitLogMMapFileModelManager().get(topic);
+        return commitLogMMapFileModel.readContent(consumeQueueDetailModel.getMsgIndex(), consumeQueueDetailModel.getMsgLength());
     }
 
     /**
      * 更新 ConsumerQueue-offset 值
+     *
      * @return
      */
-    public boolean ack() {
-
+    public boolean ack(String topic, String consumeGroup, Integer queueId) {
+        ConsumeQueueOffsetModel.OffsetTable offsetTable = CommonCache.getConsumerQueueOffsetModel().getOffsetTable();
+        Map<String, ConsumeQueueOffsetModel.ConsumerGroupDetail> topicConsumerGroupDetailMap = offsetTable.getTopicConsumerGroupDetail();
+        ConsumeQueueOffsetModel.ConsumerGroupDetail consumerGroupDetail = topicConsumerGroupDetailMap.get(topic);
+        Map<String, String> consumeQueueOffsetMap = consumerGroupDetail.getConsumerGroupDetailMap().get(consumeGroup);
+        String offsetStrInfo = consumeQueueOffsetMap.get(String.valueOf(queueId));
+        String[] offsetArr = offsetStrInfo.split("#");
+        String filename = offsetArr[0];
+        Integer currentOffset = Integer.parseInt(offsetArr[1]);
+        // 加上一条消息长度，定位到下一条需要消费的消息开头
+        currentOffset += 12;
+        consumeQueueOffsetMap.put(String.valueOf(queueId), filename + "#" + currentOffset);
         return true;
     }
 }

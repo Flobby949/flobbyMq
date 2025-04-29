@@ -35,12 +35,13 @@ public class BrokerStartUp {
         // 模拟初始化文件映射
         String topic = "order_cancel_topic";
         String consumeGroup = "user_service_group";
-        for (int i = 0; i < 5; i++) {
-            commitLogAppendHandler.appendMsg(topic, ("this is content " + i).getBytes());
-            // consumeQueueConsumeHandler.consume(topic, consumeGroup, 0);
+        for (int i = 1; i < 15; i++) {
+            // commitLogAppendHandler.appendMsg(topic, ("this is content " + i).getBytes());
+            byte[] content = consumeQueueConsumeHandler.consume(topic, consumeGroup, 0);
+            System.out.println("消费消息：" + new String(content));
+            consumeQueueConsumeHandler.ack(topic, consumeGroup, 0);
             TimeUnit.SECONDS.sleep(3);
         }
-        commitLogAppendHandler.readMsg(topic);
     }
 
     /**

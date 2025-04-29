@@ -1,6 +1,7 @@
 package top.flobby.mq.broker.cache;
 
 import top.flobby.mq.broker.config.GlobalProperties;
+import top.flobby.mq.broker.core.CommitLogMMapFileModelManager;
 import top.flobby.mq.broker.core.ConsumeQueueMMapFileModelManager;
 import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
 import top.flobby.mq.broker.model.TopicModel;
@@ -19,13 +20,19 @@ import java.util.stream.Collectors;
 
 public class CommonCache {
 
-    public static GlobalProperties globalProperties = new GlobalProperties();
+    private static GlobalProperties globalProperties = new GlobalProperties();
+    private static List<TopicModel> topicModelList = new ArrayList<>();
+    private static ConsumeQueueOffsetModel consumeQueueOffsetModel = new ConsumeQueueOffsetModel();
+    private static ConsumeQueueMMapFileModelManager consumeQueueMMapFileModelManager = new ConsumeQueueMMapFileModelManager();
+    private static CommitLogMMapFileModelManager commitLogMMapFileModelManager = new CommitLogMMapFileModelManager();
 
-    public static List<TopicModel> topicModelList = new ArrayList<>();
+    public static CommitLogMMapFileModelManager getCommitLogMMapFileModelManager() {
+        return commitLogMMapFileModelManager;
+    }
 
-    public static ConsumeQueueOffsetModel consumeQueueOffsetModel = new ConsumeQueueOffsetModel();
-
-    public static ConsumeQueueMMapFileModelManager consumeQueueMMapFileModelManager = new ConsumeQueueMMapFileModelManager();
+    public static void setCommitLogMMapFileModelManager(CommitLogMMapFileModelManager commitLogMMapFileModelManager) {
+        CommonCache.commitLogMMapFileModelManager = commitLogMMapFileModelManager;
+    }
 
     public static List<TopicModel> getTopicModelList() {
         return topicModelList;
