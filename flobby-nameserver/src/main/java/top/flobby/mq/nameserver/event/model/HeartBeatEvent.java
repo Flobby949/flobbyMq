@@ -8,4 +8,5 @@ package top.flobby.mq.nameserver.event.model;
  **/
 
 public class HeartBeatEvent extends Event{
+
 }

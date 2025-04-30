@@ -1,6 +1,7 @@
 package top.flobby.mq.common.coder;
 
 import top.flobby.mq.common.constant.NameServerConstants;
+import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 
 /**
  * @author : flobby
@@ -37,6 +38,13 @@ public class TcpMsg {
         this.magic = NameServerConstants.DEFAULT_MAGIC_NUM;
         this.len = body.length;
         this.body = body;
+    }
+
+    public TcpMsg(NameServerResponseCodeEnum responseCodeEnum) {
+        this.magic = NameServerConstants.DEFAULT_MAGIC_NUM;
+        this.code = responseCodeEnum.getCode();
+        this.body = responseCodeEnum.getDesc().getBytes();
+        this.len = body.length;
     }
 
     public short getMagic() {

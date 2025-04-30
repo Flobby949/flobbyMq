@@ -7,6 +7,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
+import top.flobby.mq.nameserver.event.EventBus;
+import top.flobby.mq.nameserver.event.model.Event;
 import top.flobby.mq.nameserver.event.model.HeartBeatEvent;
 import top.flobby.mq.nameserver.event.model.RegistryEvent;
 import top.flobby.mq.nameserver.event.model.UnRegistryEvent;
@@ -26,26 +28,34 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
 
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(TcpNettyServerHandler.class);
 
+    private EventBus eventBus;
+    public TcpNettyServerHandler(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg tcpMsg) throws Exception {
         LOGGER.info("接收到消息：{}", JSON.toJSONString(tcpMsg));
         int code = tcpMsg.getCode();
         byte[] body = tcpMsg.getBody();
+        Event event;
         switch (Objects.requireNonNull(NameServerEventCodeEnum.getByCode(code))) {
             case REGISTRY:
                 // 注册事件
-                RegistryEvent registerEvent = JSON.parseObject(body, RegistryEvent.class);
+                event = JSON.parseObject(body, RegistryEvent.class);
                 break;
             case UN_REGISTRY:
                 // 下线事件
-                UnRegistryEvent unRegistryEvent = JSON.parseObject(body, UnRegistryEvent.class);
+                event = JSON.parseObject(body, UnRegistryEvent.class);
                 break;
             case HEART_BEAT:
                 // 心跳事件
-                HeartBeatEvent heartBeatEvent = JSON.parseObject(body, HeartBeatEvent.class);
+                event = JSON.parseObject(body, HeartBeatEvent.class);
                 break;
             default:
+                event = null;
                 break;
         }
+        eventBus.publish(event);
     }
 }

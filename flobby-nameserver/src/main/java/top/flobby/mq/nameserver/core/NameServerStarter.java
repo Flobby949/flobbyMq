@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsgDecoder;
 import top.flobby.mq.common.coder.TcpMsgEncoder;
+import top.flobby.mq.nameserver.event.EventBus;
 import top.flobby.mq.nameserver.handler.TcpNettyServerHandler;
 
 /**
@@ -49,7 +50,7 @@ public class NameServerStarter {
                 // 初始化编解码器，初始化handler服务
                 channel.pipeline().addLast(new TcpMsgDecoder());
                 channel.pipeline().addLast(new TcpMsgEncoder());
-                channel.pipeline().addLast(new TcpNettyServerHandler());
+                channel.pipeline().addLast(new TcpNettyServerHandler(new EventBus()));
             }
         });
         // 监听jvm的关闭，进行优雅关闭

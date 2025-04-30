@@ -28,6 +28,9 @@
         <slf4j.version>2.0.17</slf4j.version>
         <logback.version>1.2.11</logback.version>
         <junit.platform.version>1.8.2</junit.platform.version>
+        <guava.version>21.0</guava.version>
+        <collections4.version>4.1</collections4.version>
+        <lang3.version>3.14.0</lang3.version>
     </properties>
 
     <dependencies>
@@ -41,6 +44,22 @@
             <artifactId>junit-platform-launcher</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -84,6 +103,23 @@
                 <version>${logback.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${collections4.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${lang3.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
