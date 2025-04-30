@@ -2,7 +2,7 @@ package top.flobby.mq.broker.core;
 
 import com.alibaba.fastjson2.JSON;
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.broker.constant.BrokerConstants;
+import top.flobby.mq.common.constant.BrokerConstants;
 import top.flobby.mq.broker.lock.PutMessageLock;
 import top.flobby.mq.broker.lock.UnFailReentrantLock;
 import top.flobby.mq.broker.model.*;

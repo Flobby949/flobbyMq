@@ -1,4 +1,4 @@
-package top.flobby.mq.broker.constant;
+package top.flobby.mq.common.constant;
 
 /**
  * @author : Flobby
@@ -27,4 +27,8 @@ public class BrokerConstants {
 
     // ConsumerQueueOffset 刷新默认间隔
     public final static Long DEFAULT_REFRESH_CONSUMER_QUEUE_OFFSET_INTERVAL = 3L;
+    /**
+     * 每一段consumeQueueMsg的长度都是12byte，写一个常量管理
+     */
+    public static final Integer CONSUME_QUEUE_MSG_UNIT_SIZE = 12;
 }

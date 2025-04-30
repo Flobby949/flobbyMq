@@ -2,7 +2,7 @@ package top.flobby.mq.broker.config;
 
 import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.broker.constant.BrokerConstants;
+import top.flobby.mq.common.constant.BrokerConstants;
 
 /**
  * @author : Flobby

@@ -1,7 +1,7 @@
 package top.flobby.mq.broker.core;
 
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.broker.constant.BrokerConstants;
+import top.flobby.mq.common.constant.BrokerConstants;
 import top.flobby.mq.broker.model.CommitLogMessageModel;
 
 import java.io.IOException;

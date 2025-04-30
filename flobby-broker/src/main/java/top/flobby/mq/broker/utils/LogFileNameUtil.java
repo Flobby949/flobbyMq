@@ -1,7 +1,7 @@
 package top.flobby.mq.broker.utils;
 
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.broker.constant.BrokerConstants;
+import top.flobby.mq.common.constant.BrokerConstants;
 
 /**
  * @author : Flobby

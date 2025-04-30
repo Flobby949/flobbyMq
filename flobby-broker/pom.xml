@@ -24,6 +24,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>top.flobby</groupId>
+            <artifactId>flobby-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
 

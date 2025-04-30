@@ -7,6 +7,7 @@ import top.flobby.mq.broker.model.CommitLogModel;
 import top.flobby.mq.broker.model.QueueModel;
 import top.flobby.mq.broker.model.TopicModel;
 import top.flobby.mq.broker.utils.LogFileNameUtil;
+import top.flobby.mq.common.constant.BrokerConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,11 +35,6 @@ public class ConsumeQueueMMapFileModel {
     private Integer queueId;
     private String consumeQueueFileName;
     private PutMessageLock putMessageLock;
-
-    /**
-     * 每一段msg的长度都是12byte，写一个常量管理
-     */
-    public static final Integer CONSUME_QUEUE_UNIT_SIZE = 12;
 
     /**
      * 在 MMAP 中加载文件
@@ -144,7 +140,9 @@ public class ConsumeQueueMMapFileModel {
                 mappedByteBuffer.force();
             }
         } catch (Exception e) {
-
+            // 记录异常并抛出
+            System.err.println("Error writing content: " + e.getMessage());
+            throw new RuntimeException("Error writing content", e);
         } finally {
             putMessageLock.unlock();
         }
@@ -165,7 +163,7 @@ public class ConsumeQueueMMapFileModel {
         ByteBuffer readBuf = readBuffer.slice();
         readBuf.position(position);
         // 每一段msg的长度都是12byte
-        byte[] content = new byte[CONSUME_QUEUE_UNIT_SIZE];
+        byte[] content = new byte[BrokerConstants.CONSUME_QUEUE_MSG_UNIT_SIZE];
         readBuf.get(content);
         return content;
     }

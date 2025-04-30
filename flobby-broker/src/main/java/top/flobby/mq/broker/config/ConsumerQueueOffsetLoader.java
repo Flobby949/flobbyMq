@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONWriter;
 import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.broker.constant.BrokerConstants;
+import top.flobby.mq.common.constant.BrokerConstants;
 import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
 import top.flobby.mq.broker.utils.FileContentUtil;
 

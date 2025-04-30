@@ -16,6 +16,7 @@
     <description>自制消息中间件</description>
     <modules>
         <module>flobby-broker</module>
+        <module>flobby-common</module>
     </modules>
 
     <properties>
