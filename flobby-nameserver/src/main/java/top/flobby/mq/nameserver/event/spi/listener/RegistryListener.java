@@ -8,8 +8,6 @@ import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.RegistryEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;
 
-import java.util.UUID;
-
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -36,7 +34,7 @@ public class RegistryListener implements Listener<RegistryEvent>{
             throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_USER_OR_PASSWORD.getDesc());
         }
         // 认证成功的话，设置一个标识
-        ctx.channel().attr(AttributeKey.valueOf("reqId")).set(UUID.randomUUID().toString());
+        ctx.channel().attr(AttributeKey.valueOf("reqId")).set(event.getBrokerIp() + ":" + event.getBrokerPort());
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setBrokerIp(event.getBrokerIp());
         serviceInstance.setBrokerPort(event.getBrokerPort());

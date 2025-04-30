@@ -16,24 +16,6 @@ public abstract class Event {
      * 方便使用事件关联的上下文的回写机制
      */
     private ChannelHandlerContext ctx;
-    private String brokerIp;
-    private Integer brokerPort;
-
-    public String getBrokerIp() {
-        return brokerIp;
-    }
-
-    public void setBrokerIp(String brokerIp) {
-        this.brokerIp = brokerIp;
-    }
-
-    public Integer getBrokerPort() {
-        return brokerPort;
-    }
-
-    public void setBrokerPort(Integer brokerPort) {
-        this.brokerPort = brokerPort;
-    }
 
     public long getTimestamp() {
         return timestamp;

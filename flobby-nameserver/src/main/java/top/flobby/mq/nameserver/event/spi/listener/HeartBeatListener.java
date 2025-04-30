@@ -30,9 +30,11 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
             ctx.close();
             throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_ACCESS.getDesc());
         }
+        String brokerIdentifyStr = (String) ctx.channel().attr(AttributeKey.valueOf("reqId")).get();
+        String[] brokerInfoArr = brokerIdentifyStr.split(":");
         ServiceInstance serviceInstance = new ServiceInstance();
-        serviceInstance.setBrokerIp(event.getBrokerIp());
-        serviceInstance.setBrokerPort(event.getBrokerPort());
+        serviceInstance.setBrokerIp(brokerInfoArr[0]);
+        serviceInstance.setBrokerPort(Integer.parseInt(brokerInfoArr[1]));
         serviceInstance.setLastHeartBeatTime(System.currentTimeMillis());
         CommonCache.getServiceInstanceManager().putIfExist(serviceInstance);
     }

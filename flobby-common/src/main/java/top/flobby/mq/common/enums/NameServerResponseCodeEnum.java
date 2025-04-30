@@ -8,8 +8,11 @@ package top.flobby.mq.common.enums;
  **/
 
 public enum NameServerResponseCodeEnum {
-    ERROR_USER_OR_PASSWORD(1001, "用户名或密码错误"),
-    ERROR_ACCESS(1002, "认证失败"),
+    UN_REGISTRY_SERVICE(1001, "服务正常下线"),
+
+
+    ERROR_USER_OR_PASSWORD(4001, "用户名或密码错误"),
+    ERROR_ACCESS(4002, "认证失败"),
     ;
 
     final int code;

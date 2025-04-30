@@ -29,7 +29,7 @@ public class ServiceInstanceManager {
         return serviceInstanceMap.get(brokerIp + ":" + brokerPort);
     }
 
-    public boolean remove(String brokerIp, Integer brokerPort) {
-        return serviceInstanceMap.remove(brokerIp + ":" + brokerPort) != null;
+    public boolean remove(String key) {
+        return serviceInstanceMap.remove(key) != null;
     }
 }
