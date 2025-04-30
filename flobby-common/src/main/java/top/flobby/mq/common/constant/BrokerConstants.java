@@ -31,4 +31,5 @@ public class BrokerConstants {
      * 每一段consumeQueueMsg的长度都是12byte，写一个常量管理
      */
     public static final Integer CONSUME_QUEUE_MSG_UNIT_SIZE = 12;
+    public static final short DEFAULT_MAGIC_NUM = 17671;
 }

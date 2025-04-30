@@ -13,21 +13,27 @@
     <description>mq服务端的核心代码内容,消息原始数据存储，消息的索引文件存储，mmap等非常多的内容</description>
 
     <properties>
-        <junit.version>4.13.1</junit.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>top.flobby</groupId>
             <artifactId>flobby-common</artifactId>
-            <version>1.0.0</version>
+        </dependency>
+
+
+        <!-- Netty -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+
+        <!-- JUnit -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
