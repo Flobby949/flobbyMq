@@ -1,5 +1,7 @@
 package top.flobby.mq.common.coder;
 
+import top.flobby.mq.common.constant.NameServerConstants;
+
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -26,6 +28,16 @@ public class TcpMsg {
      * 消息体
      */
     private byte[] body;
+
+    public TcpMsg() {
+    }
+
+    public TcpMsg(int code, byte[] body) {
+        this.code = code;
+        this.magic = NameServerConstants.DEFAULT_MAGIC_NUM;
+        this.len = body.length;
+        this.body = body;
+    }
 
     public short getMagic() {
         return magic;
