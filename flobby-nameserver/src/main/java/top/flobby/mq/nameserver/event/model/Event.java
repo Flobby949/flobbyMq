@@ -9,7 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @create : 2025-04-30 11:20
  **/
 
-public abstract class Event {
+public class Event {
 
     private long timestamp;
     /**

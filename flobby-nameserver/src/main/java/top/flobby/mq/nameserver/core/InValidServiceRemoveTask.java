@@ -36,6 +36,7 @@ public class InValidServiceRemoveTask implements Runnable {
                     if (serviceInstance.getLastHeartBeatTime() != null) {
                         // 剔除三次心跳间隔都没有上报记录的实例
                         if (System.currentTimeMillis() - serviceInstance.getLastHeartBeatTime() > NameServerConstants.DEFAULT_HEARTBEAT_BREAK * 3) {
+                            LOGGER.info("Remove invalid service: {}", brokerInfoKey);
                             iterator.remove();
                         }
                     }

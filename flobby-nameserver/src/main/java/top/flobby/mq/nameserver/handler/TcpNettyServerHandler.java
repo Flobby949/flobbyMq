@@ -31,11 +31,11 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
     private EventBus eventBus;
     public TcpNettyServerHandler(EventBus eventBus) {
         this.eventBus = eventBus;
+        eventBus.init();
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg tcpMsg) throws Exception {
-        LOGGER.info("接收到消息：{}", JSON.toJSONString(tcpMsg));
         int code = tcpMsg.getCode();
         byte[] body = tcpMsg.getBody();
         Event event;
@@ -50,12 +50,14 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
                 break;
             case HEART_BEAT:
                 // 心跳事件
-                event = JSON.parseObject(body, HeartBeatEvent.class);
+                event = new HeartBeatEvent();
                 break;
             default:
-                event = null;
+                event = new Event();
                 break;
         }
+        event.setCtx(channelHandlerContext);
+        event.setTimestamp(System.currentTimeMillis());
         eventBus.publish(event);
     }
 }

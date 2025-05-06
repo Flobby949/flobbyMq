@@ -5,6 +5,8 @@ import top.flobby.mq.broker.core.CommitLogMMapFileModelManager;
 import top.flobby.mq.broker.core.ConsumeQueueMMapFileModelManager;
 import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
 import top.flobby.mq.broker.model.TopicModel;
+import top.flobby.mq.broker.netty.nameserver.HeartBeatTaskManager;
+import top.flobby.mq.broker.netty.nameserver.NameServerClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,17 @@ public class CommonCache {
     private static ConsumeQueueOffsetModel consumeQueueOffsetModel = new ConsumeQueueOffsetModel();
     private static ConsumeQueueMMapFileModelManager consumeQueueMMapFileModelManager = new ConsumeQueueMMapFileModelManager();
     private static CommitLogMMapFileModelManager commitLogMMapFileModelManager = new CommitLogMMapFileModelManager();
+    private static HeartBeatTaskManager heartBeatTaskManager = new HeartBeatTaskManager();
+
+    public static HeartBeatTaskManager getHeartBeatTaskManager() {
+        return heartBeatTaskManager;
+    }
+
+    public static NameServerClient getNameServerClient() {
+        return nameServerClient;
+    }
+
+    private static NameServerClient nameServerClient = new NameServerClient();
 
     public static CommitLogMMapFileModelManager getCommitLogMMapFileModelManager() {
         return commitLogMMapFileModelManager;

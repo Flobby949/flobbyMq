@@ -17,6 +17,8 @@ public interface BrokerConstants {
 
     String BASE_CONSUME_QUEUE_PATH = "/consume_queue/";
 
+    String BROKER_PROPERTIES_PATH = "/config/broker.properties";
+
     Integer MMAP_DEFAULT_START_OFFSET = 0;
 
     // 1mb 大小，方便开发，实际场景中一般是 1 GB

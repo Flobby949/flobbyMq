@@ -4,6 +4,11 @@ import io.netty.util.internal.StringUtil;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.common.constant.BrokerConstants;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Properties;
+
 /**
  * @author : Flobby
  * @program : flobbyMq
@@ -23,6 +28,20 @@ public class GlobalPropertiesLoader {
             throw new IllegalArgumentException("FLOBBY_MQ_HOME is null");
         }
         globalProperties.setMqHome(mqHome);
+
+        Properties properties = new Properties();
+        try {
+            properties.load(Files.newInputStream(Paths.get(mqHome + BrokerConstants.BROKER_PROPERTIES_PATH)));
+            globalProperties.setNameserverIp(properties.getProperty("nameserver.ip"));
+            globalProperties.setNameserverPort(Integer.parseInt(properties.getProperty("nameserver.port")));
+            globalProperties.setNameserverUser(properties.getProperty("nameserver.user"));
+            globalProperties.setNameserverPassword(properties.getProperty("nameserver.password"));
+
+            globalProperties.setBrokerPort(Integer.parseInt(properties.getProperty("broker.port")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         CommonCache.setGlobalProperties(globalProperties);
     }
 }

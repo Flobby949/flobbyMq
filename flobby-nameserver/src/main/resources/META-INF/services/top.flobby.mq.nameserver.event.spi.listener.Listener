@@ -1,1 +1,3 @@
 top.flobby.mq.nameserver.event.spi.listener.HeartBeatListener
+top.flobby.mq.nameserver.event.spi.listener.RegistryListener
+top.flobby.mq.nameserver.event.spi.listener.UnRegistryListener

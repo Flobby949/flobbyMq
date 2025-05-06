@@ -15,10 +15,10 @@ import java.util.Properties;
  **/
 
 public class PropertiesLoader {
-    private Properties properties;
+    private Properties properties = new Properties();
 
     public void loadProperties() throws IOException {
-        String mqHome = System.getenv(BrokerConstants.FLOBBY_MQ_HOME);
+        String mqHome = System.getProperty(BrokerConstants.FLOBBY_MQ_HOME);
         properties.load(Files.newInputStream(new File(mqHome + "/config/nameserver.properties").toPath()));
     }
 

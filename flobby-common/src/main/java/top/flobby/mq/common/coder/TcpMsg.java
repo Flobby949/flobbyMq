@@ -1,7 +1,10 @@
 package top.flobby.mq.common.coder;
 
 import top.flobby.mq.common.constant.NameServerConstants;
+import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
+
+import java.util.Arrays;
 
 /**
  * @author : flobby
@@ -47,6 +50,13 @@ public class TcpMsg {
         this.len = body.length;
     }
 
+    public TcpMsg(NameServerEventCodeEnum eventCodeEnum) {
+        this.magic = NameServerConstants.DEFAULT_MAGIC_NUM;
+        this.code = eventCodeEnum.getCode();
+        this.body = eventCodeEnum.getDesc().getBytes();
+        this.len = body.length;
+    }
+
     public short getMagic() {
         return magic;
     }
@@ -77,5 +87,15 @@ public class TcpMsg {
 
     public void setBody(byte[] body) {
         this.body = body;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "magic=" + magic +
+                ", code=" + code +
+                ", len=" + len +
+                ", body=" + Arrays.toString(body) +
+                '}';
     }
 }

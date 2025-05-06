@@ -1,7 +1,10 @@
 package top.flobby.mq.nameserver.event.spi.listener;
 
+import com.alibaba.fastjson2.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
@@ -16,6 +19,7 @@ import top.flobby.mq.nameserver.store.ServiceInstance;
  **/
 
 public class RegistryListener implements Listener<RegistryEvent>{
+    public static final Logger LOGGER = LoggerFactory.getLogger(RegistryListener.class);
 
     @Override
     public void onReceive(RegistryEvent event) throws IllegalAccessException {
@@ -33,12 +37,15 @@ public class RegistryListener implements Listener<RegistryEvent>{
             ctx.close();
             throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_USER_OR_PASSWORD.getDesc());
         }
+        LOGGER.info("注册成功：{}", JSON.toJSONString(event));
         // 认证成功的话，设置一个标识
         ctx.channel().attr(AttributeKey.valueOf("reqId")).set(event.getBrokerIp() + ":" + event.getBrokerPort());
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setBrokerIp(event.getBrokerIp());
         serviceInstance.setBrokerPort(event.getBrokerPort());
-        serviceInstance.setFirstRegistryTime(System.currentTimeMillis());
+        serviceInstance.setFirstRegistryTime(event.getTimestamp());
         CommonCache.getServiceInstanceManager().put(serviceInstance);
+        TcpMsg tcpMsg = new TcpMsg(NameServerResponseCodeEnum.REGISTRY_SUCCESS);
+        ctx.writeAndFlush(tcpMsg);
     }
 }
