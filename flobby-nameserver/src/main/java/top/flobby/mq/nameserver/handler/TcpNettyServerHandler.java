@@ -60,4 +60,21 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
         event.setTimestamp(System.currentTimeMillis());
         eventBus.publish(event);
     }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        // 只依赖定时任务剔除服务连接，在一些高要求的场景下三个心跳周期太长了，在这里监听并主动断开
+        LOGGER.info("连接断开: {}", ctx.channel().remoteAddress());
+        UnRegistryEvent unRegistryEvent = new UnRegistryEvent();
+        unRegistryEvent.setCtx(ctx);
+        unRegistryEvent.setTimestamp(System.currentTimeMillis());
+        eventBus.publish(unRegistryEvent);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        LOGGER.error("Error processing message: {}", cause.getMessage(), cause);
+    }
 }
