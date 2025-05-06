@@ -32,4 +32,8 @@ public class ServiceInstanceManager {
     public boolean remove(String key) {
         return serviceInstanceMap.remove(key) != null;
     }
+
+    public Map<String, ServiceInstance> getServiceInstanceMap() {
+        return serviceInstanceMap;
+    }
 }

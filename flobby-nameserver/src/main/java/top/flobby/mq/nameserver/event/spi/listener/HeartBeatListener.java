@@ -30,6 +30,7 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
             ctx.close();
             throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_ACCESS.getDesc());
         }
+        // 心跳，客户端固定间隔发送
         String brokerIdentifyStr = (String) ctx.channel().attr(AttributeKey.valueOf("reqId")).get();
         String[] brokerInfoArr = brokerIdentifyStr.split(":");
         ServiceInstance serviceInstance = new ServiceInstance();

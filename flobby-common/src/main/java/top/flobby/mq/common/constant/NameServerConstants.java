@@ -14,4 +14,7 @@ public interface NameServerConstants {
 
     // 注册中心默认端口
     int DEFAULT_NAMESERVER_PORT = 8080;
+
+    // 默认心跳间隔 3 s
+    int DEFAULT_HEARTBEAT_BREAK = 3000;
 }
