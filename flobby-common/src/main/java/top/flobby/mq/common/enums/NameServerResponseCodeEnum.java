@@ -10,6 +10,7 @@ package top.flobby.mq.common.enums;
 public enum NameServerResponseCodeEnum {
     REGISTRY_SUCCESS(1001, "服务注册成功"),
     UN_REGISTRY_SERVICE(1002, "服务正常下线"),
+    MASTER_START_REPLICATION_ACK(1003, "master节点开始复制"),
 
 
     ERROR_USER_OR_PASSWORD(4001, "用户名或密码错误"),

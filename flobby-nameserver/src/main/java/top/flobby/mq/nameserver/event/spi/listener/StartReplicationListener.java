@@ -32,5 +32,7 @@ public class StartReplicationListener implements Listener<StartReplicationEvent>
         String reqId = event.getSlaveIp() + ":" + event.getSlavePort();
         ctx.channel().attr(AttributeKey.valueOf("reqId")).set(reqId);
         CommonCache.getReplicationChannelManager().put(reqId, ctx);
+        TcpMsg tcpMsg = new TcpMsg(NameServerResponseCodeEnum.MASTER_START_REPLICATION_ACK);
+        ctx.writeAndFlush(tcpMsg);
     }
 }

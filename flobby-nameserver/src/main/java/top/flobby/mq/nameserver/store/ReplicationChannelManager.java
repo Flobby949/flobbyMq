@@ -16,6 +16,10 @@ public class ReplicationChannelManager {
 
     private static Map<String, ChannelHandlerContext> channelHandlerContextMap = new ConcurrentHashMap<>();
 
+    public Map<String, ChannelHandlerContext> getChannelHandlerContextMap() {
+        return channelHandlerContextMap;
+    }
+
     public void put(String reqId, ChannelHandlerContext ctx) {
         channelHandlerContextMap.put(reqId, ctx);
     }

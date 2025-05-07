@@ -4,6 +4,8 @@ import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.config.PropertiesLoader;
 import top.flobby.mq.nameserver.core.InValidServiceRemoveTask;
 import top.flobby.mq.nameserver.core.NameServerStarter;
+import top.flobby.mq.nameserver.replication.ReplicationModeEnum;
+import top.flobby.mq.nameserver.replication.ReplicationService;
 
 import java.io.IOException;
 
@@ -17,6 +19,22 @@ import java.io.IOException;
 public class NameServerStartUp {
 
     private static NameServerStarter nameServerStarter;
+    private static ReplicationService replicationService = new ReplicationService();
+
+    private static void initReplication() {
+        // 复制逻辑初始化
+        ReplicationModeEnum mode = replicationService.checkProperties();
+        if (mode.equals(ReplicationModeEnum.MASTER_SLAVE)) {
+            // 开启主从同步复制
+            CommonCache.getMasterReplicationMsgSendTask().initTask();
+        }
+        replicationService.startReplicationTask(mode);
+    }
+
+    private static void initInvalidServiceRemoveTask() {
+        // 启动非法服务剔除任务
+        new Thread(new InValidServiceRemoveTask()).start();
+    }
 
     // 1. 网络请求的接受 （netty完成）
     // 2. 事件发布的实现（eventBus -> event）Spring方式、Google Guava方式
@@ -27,8 +45,9 @@ public class NameServerStartUp {
         PropertiesLoader propertiesLoader = new PropertiesLoader();
         propertiesLoader.loadProperties();
         // 获取到配置后，判断集群的复制类型
+        initReplication();
         // 启动非法服务剔除任务
-        new Thread(new InValidServiceRemoveTask()).start();
+        initInvalidServiceRemoveTask();
         // 启动服务
         nameServerStarter = new NameServerStarter(CommonCache.getNameServerProperties().getNameserverPort());
         nameServerStarter.startServer();

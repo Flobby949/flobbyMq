@@ -28,12 +28,12 @@ public class ReplicationService {
     public static final Logger LOGGER = LoggerFactory.getLogger(ReplicationService.class);
 
     // 参数校验
-    public void checkProperties() {
+    public ReplicationModeEnum checkProperties() {
         NameServerProperties nameServerProperties = CommonCache.getNameServerProperties();
         String replicationMode = nameServerProperties.getReplicationMode();
         if (StringUtils.isBlank(replicationMode) || ReplicationModeEnum.SINGLE.getMode().equals(replicationMode)) {
             LOGGER.error("执行单机模式");
-            return;
+            return ReplicationModeEnum.SINGLE;
         }
         ReplicationModeEnum modeEnum = ReplicationModeEnum.of(replicationMode);
         AssertUtil.isNotNull(modeEnum, "非法的复制模式类型");
@@ -51,6 +51,7 @@ public class ReplicationService {
                 AssertUtil.isNotBlank(traceProperties.getNextNode(), "nextNode参数为空");
                 break;
         }
+        return modeEnum;
     }
 
     // 根据参数，判断复制方式
@@ -94,12 +95,12 @@ public class ReplicationService {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 bossGroup.shutdownGracefully();
                 workerGroup.shutdownGracefully();
-                LOGGER.info("nameserver关闭成功");
+                LOGGER.info("数据同步服务关闭成功");
             }));
             ChannelFuture channelFuture = null;
             try {
                 channelFuture = bootstrap.bind(port).sync();
-                LOGGER.info("nameserver启动成功，监听端口：{}", port);
+                LOGGER.info("数据同步服务启动成功，监听端口：{}", port);
                 channelFuture.channel().closeFuture().sync();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
