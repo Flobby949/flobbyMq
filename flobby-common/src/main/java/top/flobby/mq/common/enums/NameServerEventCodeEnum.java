@@ -14,8 +14,8 @@ public enum NameServerEventCodeEnum {
     HEART_BEAT(3, "心跳事件"),
 
     START_REPLICATION(4, "开启复制"),
-    MASTER_REPLICATION_MSG(5, "主从同步数据")
-    ;
+    MASTER_REPLICATION_MSG(5, "主从同步数据"),
+    SLAVE_HEART_BEAT(6, "从节点心跳事件");
 
     final int code;
     final String desc;

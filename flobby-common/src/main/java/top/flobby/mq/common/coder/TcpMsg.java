@@ -1,5 +1,6 @@
 package top.flobby.mq.common.coder;
 
+import com.alibaba.fastjson2.JSON;
 import top.flobby.mq.common.constant.NameServerConstants;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
@@ -41,6 +42,13 @@ public class TcpMsg {
         this.magic = NameServerConstants.DEFAULT_MAGIC_NUM;
         this.len = body.length;
         this.body = body;
+    }
+
+    public TcpMsg(int code, Object body) {
+        this.code = code;
+        this.magic = NameServerConstants.DEFAULT_MAGIC_NUM;
+        this.body = JSON.toJSONBytes(body);
+        this.len = this.body.length;
     }
 
     public TcpMsg(NameServerResponseCodeEnum responseCodeEnum) {

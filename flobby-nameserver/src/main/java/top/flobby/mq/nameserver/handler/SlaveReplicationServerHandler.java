@@ -9,7 +9,7 @@ import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.nameserver.event.EventBus;
 import top.flobby.mq.nameserver.event.model.Event;
-import top.flobby.mq.nameserver.event.model.StartReplicationEvent;
+import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
 
 /**
  * @author : flobby
@@ -19,12 +19,12 @@ import top.flobby.mq.nameserver.event.model.StartReplicationEvent;
  **/
 
 @ChannelHandler.Sharable
-public class MasterSlaveReplicationServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
+public class SlaveReplicationServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
 
-    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(MasterSlaveReplicationServerHandler.class);
+    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(SlaveReplicationServerHandler.class);
 
     private EventBus eventBus;
-    public MasterSlaveReplicationServerHandler(EventBus eventBus) {
+    public SlaveReplicationServerHandler(EventBus eventBus) {
         this.eventBus = eventBus;
         eventBus.init();
     }
@@ -35,8 +35,8 @@ public class MasterSlaveReplicationServerHandler extends SimpleChannelInboundHan
         byte[] body = tcpMsg.getBody();
         Event event = new Event();
         // 从节点发起连接，在master端验证密码，建立连接
-        if (code == NameServerEventCodeEnum.START_REPLICATION.getCode()) {
-            event = JSON.parseObject(body, StartReplicationEvent.class);
+        if (code == NameServerEventCodeEnum.MASTER_REPLICATION_MSG.getCode()) {
+            event = JSON.parseObject(body, ReplicationMsgEvent.class);
         }
 
         // 连接建立完成后，master收到的数据，同步发送给slave节点

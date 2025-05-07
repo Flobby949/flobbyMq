@@ -4,8 +4,7 @@ import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.config.PropertiesLoader;
 import top.flobby.mq.nameserver.core.InValidServiceRemoveTask;
 import top.flobby.mq.nameserver.core.NameServerStarter;
-import top.flobby.mq.nameserver.replication.ReplicationModeEnum;
-import top.flobby.mq.nameserver.replication.ReplicationService;
+import top.flobby.mq.nameserver.replication.*;
 
 import java.io.IOException;
 
@@ -24,11 +23,22 @@ public class NameServerStartUp {
     private static void initReplication() {
         // 复制逻辑初始化
         ReplicationModeEnum mode = replicationService.checkProperties();
-        if (mode.equals(ReplicationModeEnum.MASTER_SLAVE)) {
-            // 开启主从同步复制
-            CommonCache.getMasterReplicationMsgSendTask().initTask();
-        }
+        // 感觉角色启动netty进程
         replicationService.startReplicationTask(mode);
+        if (mode.equals(ReplicationModeEnum.MASTER_SLAVE)) {
+            ReplicationRoleEnum role = ReplicationRoleEnum.of(CommonCache.getNameServerProperties().getMasterSlaveReplicationProperties().getRole());
+            ReplicationTask replicationTask = null;
+            if (role.equals(ReplicationRoleEnum.MASTER)) {
+                // 开启主从同步复制
+                replicationTask = new MasterReplicationMsgSendTask("master-replication-msg-send-task");
+                replicationTask.startTaskAsync();
+            } else if (role.equals(ReplicationRoleEnum.SLAVE)) {
+                // 开启心跳任务，发送给主节点
+                replicationTask = new SlaveReplicationHeartBeatTask("slave-replication-heartbeat-send-task");
+                replicationTask.startTaskAsync();
+            }
+            CommonCache.setReplicationTask(replicationTask);
+        }
     }
 
     private static void initInvalidServiceRemoveTask() {

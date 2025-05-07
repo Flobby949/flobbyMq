@@ -1,7 +1,8 @@
 package top.flobby.mq.nameserver.cache;
 
+import io.netty.channel.Channel;
 import top.flobby.mq.nameserver.config.NameServerProperties;
-import top.flobby.mq.nameserver.replication.MasterReplicationMsgSendTask;
+import top.flobby.mq.nameserver.replication.ReplicationTask;
 import top.flobby.mq.nameserver.store.ReplicationChannelManager;
 import top.flobby.mq.nameserver.store.ServiceInstanceManager;
 
@@ -17,15 +18,23 @@ public class CommonCache {
     private static ServiceInstanceManager serviceInstanceManager = new ServiceInstanceManager();
     private static NameServerProperties nameServerProperties = new NameServerProperties();
     private static ReplicationChannelManager replicationChannelManager = new ReplicationChannelManager();
+    private static ReplicationTask replicationTask;
+    private static Channel masterConnection = null;
 
-    private static MasterReplicationMsgSendTask masterReplicationMsgSendTask = new MasterReplicationMsgSendTask();
-
-    public static MasterReplicationMsgSendTask getMasterReplicationMsgSendTask() {
-        return masterReplicationMsgSendTask;
+    public static ReplicationTask getReplicationTask() {
+        return replicationTask;
     }
 
-    public static void setMasterReplicationMsgSendTask(MasterReplicationMsgSendTask masterReplicationMsgSendTask) {
-        CommonCache.masterReplicationMsgSendTask = masterReplicationMsgSendTask;
+    public static void setReplicationTask(ReplicationTask replicationTask) {
+        CommonCache.replicationTask = replicationTask;
+    }
+
+    public static Channel getMasterConnection() {
+        return masterConnection;
+    }
+
+    public static void setMasterConnection(Channel masterConnection) {
+        CommonCache.masterConnection = masterConnection;
     }
 
     public static ReplicationChannelManager getReplicationChannelManager() {

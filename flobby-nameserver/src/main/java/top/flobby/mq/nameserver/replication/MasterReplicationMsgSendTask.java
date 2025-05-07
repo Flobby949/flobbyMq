@@ -20,13 +20,17 @@ import java.util.concurrent.BlockingQueue;
  * @create : 2025-05-07 14:49
  **/
 
-public class MasterReplicationMsgSendTask {
+public class MasterReplicationMsgSendTask extends ReplicationTask{
     public static final Logger LOGGER = LoggerFactory.getLogger(MasterReplicationMsgSendTask.class);
 
     private BlockingQueue<ReplicationMsgEvent> replicationQueue = new ArrayBlockingQueue<>(5000);
 
+    public MasterReplicationMsgSendTask(String taskName) {
+        super(taskName);
+    }
+
+    @Override
     public void initTask() {
-        Thread sendReplicationMsgTask = new Thread(() -> {
             try {
                 while (true) {
                     ReplicationMsgEvent event = replicationQueue.take();
@@ -46,9 +50,5 @@ public class MasterReplicationMsgSendTask {
             } catch (Exception e) {
                 LOGGER.error("发送数据异常：{}", e.getMessage());
             }
-        });
-        sendReplicationMsgTask.setName("send-replication-msg-task");
-        sendReplicationMsgTask.start();
-        LOGGER.info("启动主从同步任务");
     }
 }

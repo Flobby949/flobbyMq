@@ -8,6 +8,8 @@ import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.StartReplicationEvent;
 import top.flobby.mq.nameserver.utils.NameServerUtil;
 
+import java.net.InetSocketAddress;
+
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -29,6 +31,9 @@ public class StartReplicationListener implements Listener<StartReplicationEvent>
             throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_USER_OR_PASSWORD.getDesc());
         }
         // 向内存中加入
+        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        event.setSlaveIp(inetSocketAddress.getHostString());
+        event.setSlavePort(inetSocketAddress.getPort());
         String reqId = event.getSlaveIp() + ":" + event.getSlavePort();
         ctx.channel().attr(AttributeKey.valueOf("reqId")).set(reqId);
         CommonCache.getReplicationChannelManager().put(reqId, ctx);
