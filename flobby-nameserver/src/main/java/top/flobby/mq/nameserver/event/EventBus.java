@@ -1,5 +1,6 @@
 package top.flobby.mq.nameserver.event;
 
+import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -92,6 +93,7 @@ public class EventBus {
      * @param event 事件
      */
     public void publish(Event event) {
+
         List<Listener<? super Event>> listenerList = eventListenerMap.get(event.getClass());
         threadPoolExecutor.execute(() -> {
             try {
@@ -100,7 +102,7 @@ public class EventBus {
                     listener.onReceive(event);
                 }
             } catch (Exception e) {
-                LOGGER.error("Error publishing event: {}, ", e.getMessage(), e);
+                LOGGER.error("Error publishing event: {}, ", JSON.toJSONString(event), e);
             }
         });
     }

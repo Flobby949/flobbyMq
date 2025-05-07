@@ -1,6 +1,5 @@
 package top.flobby.mq.nameserver.event.spi.listener;
 
-import com.alibaba.fastjson2.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
@@ -9,6 +8,7 @@ import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.HeartBeatEvent;
+import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;
 
 /**
@@ -34,7 +34,7 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
             ctx.close();
             throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_ACCESS.getDesc());
         }
-        LOGGER.info("收到心跳包：{}", JSON.toJSONString(event));
+        // LOGGER.info("收到心跳包：{}", JSON.toJSONString(event));
         // 心跳，客户端固定间隔发送
         String brokerIdentifyStr = (String) ctx.channel().attr(AttributeKey.valueOf("reqId")).get();
         String[] brokerInfoArr = brokerIdentifyStr.split(":");
@@ -43,6 +43,11 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
         serviceInstance.setBrokerPort(Integer.parseInt(brokerInfoArr[1]));
         serviceInstance.setLastHeartBeatTime(event.getTimestamp());
         CommonCache.getServiceInstanceManager().putIfExist(serviceInstance);
-
+        // 同步
+        ReplicationMsgEvent replicationMsgEvent = new ReplicationMsgEvent();
+        replicationMsgEvent.setServiceInstance(serviceInstance);
+        replicationMsgEvent.setCtx(ctx);
+        replicationMsgEvent.setTimestamp(System.currentTimeMillis());
+        CommonCache.getReplicationMsgQueueManager().put(replicationMsgEvent);
     }
 }

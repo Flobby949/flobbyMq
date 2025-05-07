@@ -9,6 +9,7 @@ import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.RegistryEvent;
+import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;
 import top.flobby.mq.nameserver.utils.NameServerUtil;
 
@@ -44,6 +45,12 @@ public class RegistryListener implements Listener<RegistryEvent>{
         serviceInstance.setBrokerPort(event.getBrokerPort());
         serviceInstance.setFirstRegistryTime(event.getTimestamp());
         CommonCache.getServiceInstanceManager().put(serviceInstance);
+        // 如果当前是主从复制模式，且当前时主节点，则向队列中塞入对象
+        ReplicationMsgEvent replicationMsgEvent = new ReplicationMsgEvent();
+        replicationMsgEvent.setServiceInstance(serviceInstance);
+        replicationMsgEvent.setCtx(ctx);
+        replicationMsgEvent.setTimestamp(System.currentTimeMillis());
+        CommonCache.getReplicationMsgQueueManager().put(replicationMsgEvent);
         TcpMsg tcpMsg = new TcpMsg(NameServerResponseCodeEnum.REGISTRY_SUCCESS);
         ctx.writeAndFlush(tcpMsg);
     }

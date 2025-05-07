@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import top.flobby.mq.nameserver.config.NameServerProperties;
 import top.flobby.mq.nameserver.replication.ReplicationTask;
 import top.flobby.mq.nameserver.store.ReplicationChannelManager;
+import top.flobby.mq.nameserver.store.ReplicationMsgQueueManager;
 import top.flobby.mq.nameserver.store.ServiceInstanceManager;
 
 /**
@@ -20,6 +21,15 @@ public class CommonCache {
     private static ReplicationChannelManager replicationChannelManager = new ReplicationChannelManager();
     private static ReplicationTask replicationTask;
     private static Channel masterConnection = null;
+    private static ReplicationMsgQueueManager replicationMsgQueueManager = new ReplicationMsgQueueManager();
+
+    public static ReplicationMsgQueueManager getReplicationMsgQueueManager() {
+        return replicationMsgQueueManager;
+    }
+
+    public static void setReplicationMsgQueueManager(ReplicationMsgQueueManager replicationMsgQueueManager) {
+        CommonCache.replicationMsgQueueManager = replicationMsgQueueManager;
+    }
 
     public static ReplicationTask getReplicationTask() {
         return replicationTask;

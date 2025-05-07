@@ -10,8 +10,6 @@ import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
 
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * @author : flobby
@@ -23,8 +21,6 @@ import java.util.concurrent.BlockingQueue;
 public class MasterReplicationMsgSendTask extends ReplicationTask{
     public static final Logger LOGGER = LoggerFactory.getLogger(MasterReplicationMsgSendTask.class);
 
-    private BlockingQueue<ReplicationMsgEvent> replicationQueue = new ArrayBlockingQueue<>(5000);
-
     public MasterReplicationMsgSendTask(String taskName) {
         super(taskName);
     }
@@ -33,7 +29,7 @@ public class MasterReplicationMsgSendTask extends ReplicationTask{
     public void initTask() {
             try {
                 while (true) {
-                    ReplicationMsgEvent event = replicationQueue.take();
+                    ReplicationMsgEvent event = CommonCache.getReplicationMsgQueueManager().getReplicationQueue().take();
                     byte[] body = JSON.toJSONBytes(event);
                     Map<String, ChannelHandlerContext> ctxMap =
                             CommonCache.getReplicationChannelManager().getChannelHandlerContextMap();
@@ -43,6 +39,7 @@ public class MasterReplicationMsgSendTask extends ReplicationTask{
                      * 半同步复制
                      */
                     for (ChannelHandlerContext ctx : ctxMap.values()) {
+                        LOGGER.info("主节点发送数据：{}", JSON.toJSONString(event));
                         TcpMsg msg = new TcpMsg(NameServerEventCodeEnum.MASTER_REPLICATION_MSG.getCode(), body);
                         ctx.writeAndFlush(msg);
                     }
