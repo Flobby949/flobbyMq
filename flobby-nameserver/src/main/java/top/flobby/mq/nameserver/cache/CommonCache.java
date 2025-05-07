@@ -1,6 +1,7 @@
 package top.flobby.mq.nameserver.cache;
 
-import top.flobby.mq.nameserver.core.PropertiesLoader;
+import top.flobby.mq.nameserver.config.NameServerProperties;
+import top.flobby.mq.nameserver.store.ReplicationChannelManager;
 import top.flobby.mq.nameserver.store.ServiceInstanceManager;
 
 /**
@@ -12,15 +13,24 @@ import top.flobby.mq.nameserver.store.ServiceInstanceManager;
 
 public class CommonCache {
 
-    private static PropertiesLoader   propertiesLoader;
-    private static ServiceInstanceManager serviceInstanceManager;
+    private static ServiceInstanceManager serviceInstanceManager = new ServiceInstanceManager();
+    private static NameServerProperties nameServerProperties = new NameServerProperties();
+    private static ReplicationChannelManager replicationChannelManager = new ReplicationChannelManager();
 
-    public static PropertiesLoader getPropertiesLoader() {
-        return propertiesLoader;
+    public static ReplicationChannelManager getReplicationChannelManager() {
+        return replicationChannelManager;
     }
 
-    public static void setPropertiesLoader(PropertiesLoader propertiesLoader) {
-        CommonCache.propertiesLoader = propertiesLoader;
+    public static void setReplicationChannelManager(ReplicationChannelManager replicationChannelManager) {
+        CommonCache.replicationChannelManager = replicationChannelManager;
+    }
+
+    public static NameServerProperties getNameServerProperties() {
+        return nameServerProperties;
+    }
+
+    public static void setNameServerProperties(NameServerProperties nameServerProperties) {
+        CommonCache.nameServerProperties = nameServerProperties;
     }
 
     public static ServiceInstanceManager getServiceInstanceManager() {

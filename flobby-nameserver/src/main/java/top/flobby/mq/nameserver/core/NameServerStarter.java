@@ -50,7 +50,7 @@ public class NameServerStarter {
                 // 初始化编解码器，初始化handler服务
                 channel.pipeline().addLast(new TcpMsgDecoder());
                 channel.pipeline().addLast(new TcpMsgEncoder());
-                channel.pipeline().addLast(new TcpNettyServerHandler(new EventBus()));
+                channel.pipeline().addLast(new TcpNettyServerHandler(new EventBus("broker-connection")));
             }
         });
         // 监听jvm的关闭，进行优雅关闭

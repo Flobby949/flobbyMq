@@ -1,11 +1,9 @@
 package top.flobby.mq.nameserver;
 
-import top.flobby.mq.common.constant.NameServerConstants;
 import top.flobby.mq.nameserver.cache.CommonCache;
+import top.flobby.mq.nameserver.config.PropertiesLoader;
 import top.flobby.mq.nameserver.core.InValidServiceRemoveTask;
 import top.flobby.mq.nameserver.core.NameServerStarter;
-import top.flobby.mq.nameserver.core.PropertiesLoader;
-import top.flobby.mq.nameserver.store.ServiceInstanceManager;
 
 import java.io.IOException;
 
@@ -28,13 +26,11 @@ public class NameServerStartUp {
         // 加载配置
         PropertiesLoader propertiesLoader = new PropertiesLoader();
         propertiesLoader.loadProperties();
-        CommonCache.setPropertiesLoader(propertiesLoader);
-        // 加载服务实例
-        CommonCache.setServiceInstanceManager(new ServiceInstanceManager());
+        // 获取到配置后，判断集群的复制类型
         // 启动非法服务剔除任务
         new Thread(new InValidServiceRemoveTask()).start();
         // 启动服务
-        nameServerStarter = new NameServerStarter(NameServerConstants.DEFAULT_NAMESERVER_PORT);
+        nameServerStarter = new NameServerStarter(CommonCache.getNameServerProperties().getNameserverPort());
         nameServerStarter.startServer();
     }
 }

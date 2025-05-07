@@ -10,6 +10,7 @@ import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.RegistryEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;
+import top.flobby.mq.nameserver.utils.NameServerUtil;
 
 /**
  * @author : flobby
@@ -26,10 +27,8 @@ public class RegistryListener implements Listener<RegistryEvent>{
         // 安全认证，简单通过密码实现
         String user = event.getUser();
         String password = event.getPassword();
-        String propertyUser = CommonCache.getPropertiesLoader().getProperty("nameserver.user");
-        String propertyPassword = CommonCache.getPropertiesLoader().getProperty("nameserver.password");
         ChannelHandlerContext ctx = event.getCtx();
-        if (!user.equals(propertyUser) || !password.equals(propertyPassword)) {
+        if (!NameServerUtil.checkUserAndPassword(user, password)) {
             // 注册失败
             TcpMsg errorMsg = new TcpMsg(NameServerResponseCodeEnum.ERROR_USER_OR_PASSWORD);
             // 回写失败消息

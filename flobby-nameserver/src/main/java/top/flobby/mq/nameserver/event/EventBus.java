@@ -30,6 +30,19 @@ public class EventBus {
 
     private static Map<Class<? extends Event>, List<Listener<? super Event>>> eventListenerMap = new ConcurrentHashMap<>();
 
+    /**
+     * 线程任务名称
+     */
+    private String taskName;
+
+    public EventBus(String taskName) {
+        this.taskName = taskName + "-";
+    }
+
+    public EventBus() {
+        this.taskName = "event-bus-thread-";
+    }
+
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
             10,
             100,
@@ -38,7 +51,7 @@ public class EventBus {
             new ArrayBlockingQueue<>(1000),
             r -> {
                 Thread thread = new Thread(r);
-                thread.setName("event-bus-thread-" + UUID.randomUUID());
+                thread.setName(taskName + UUID.randomUUID());
                 return thread;
             }
     );

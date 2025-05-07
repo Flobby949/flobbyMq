@@ -13,7 +13,7 @@ public interface NameServerConstants {
     short DEFAULT_MAGIC_NUM = 17671;
 
     // 注册中心默认端口
-    int DEFAULT_NAMESERVER_PORT = 8080;
+    int DEFAULT_NAMESERVER_PORT = 9090;
 
     // 默认心跳间隔 3 s
     int DEFAULT_HEARTBEAT_BREAK = 3000;
