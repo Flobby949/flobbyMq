@@ -1,11 +1,15 @@
 package top.flobby.mq.nameserver.cache;
 
 import io.netty.channel.Channel;
+import top.flobby.mq.common.dto.SlaveAckDto;
 import top.flobby.mq.nameserver.config.NameServerProperties;
 import top.flobby.mq.nameserver.replication.ReplicationTask;
 import top.flobby.mq.nameserver.store.ReplicationChannelManager;
 import top.flobby.mq.nameserver.store.ReplicationMsgQueueManager;
 import top.flobby.mq.nameserver.store.ServiceInstanceManager;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author : flobby
@@ -22,6 +26,16 @@ public class CommonCache {
     private static ReplicationTask replicationTask;
     private static Channel masterConnection = null;
     private static ReplicationMsgQueueManager replicationMsgQueueManager = new ReplicationMsgQueueManager();
+    // 主从复制消息的ack队列，key-消息id，value-需要ack的次数
+    private static Map<String, SlaveAckDto> ackMap = new ConcurrentHashMap<>();
+
+    public static Map<String, SlaveAckDto> getAckMap() {
+        return ackMap;
+    }
+
+    public static void setAckMap(Map<String, SlaveAckDto> ackMap) {
+        CommonCache.ackMap = ackMap;
+    }
 
     public static ReplicationMsgQueueManager getReplicationMsgQueueManager() {
         return replicationMsgQueueManager;

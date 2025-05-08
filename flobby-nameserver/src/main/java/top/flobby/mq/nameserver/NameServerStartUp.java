@@ -4,6 +4,8 @@ import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.config.PropertiesLoader;
 import top.flobby.mq.nameserver.core.InValidServiceRemoveTask;
 import top.flobby.mq.nameserver.core.NameServerStarter;
+import top.flobby.mq.nameserver.enums.ReplicationModeEnum;
+import top.flobby.mq.nameserver.enums.ReplicationRoleEnum;
 import top.flobby.mq.nameserver.replication.*;
 
 import java.io.IOException;

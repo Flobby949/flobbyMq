@@ -1,4 +1,4 @@
-package top.flobby.mq.nameserver.replication;
+package top.flobby.mq.nameserver.enums;
 
 /**
  * @author : flobby

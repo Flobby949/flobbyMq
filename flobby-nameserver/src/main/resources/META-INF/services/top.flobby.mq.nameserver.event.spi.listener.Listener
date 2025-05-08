@@ -4,3 +4,4 @@ top.flobby.mq.nameserver.event.spi.listener.UnRegistryListener
 top.flobby.mq.nameserver.event.spi.listener.StartReplicationListener
 top.flobby.mq.nameserver.event.spi.listener.SlaveReplicationMsgListener
 top.flobby.mq.nameserver.event.spi.listener.SlaveHeartBeatListener
+top.flobby.mq.nameserver.event.spi.listener.SlaveReplicationMsgAckListener

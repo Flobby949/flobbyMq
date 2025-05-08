@@ -3,6 +3,7 @@ package top.flobby.mq.nameserver.event.spi.listener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.StartReplicationEvent;
@@ -37,7 +38,7 @@ public class StartReplicationListener implements Listener<StartReplicationEvent>
         String reqId = event.getSlaveIp() + ":" + event.getSlavePort();
         ctx.channel().attr(AttributeKey.valueOf("reqId")).set(reqId);
         CommonCache.getReplicationChannelManager().put(reqId, ctx);
-        TcpMsg tcpMsg = new TcpMsg(NameServerResponseCodeEnum.MASTER_START_REPLICATION_ACK);
+        TcpMsg tcpMsg = new TcpMsg(NameServerEventCodeEnum.MASTER_START_REPLICATION_ACK);
         ctx.writeAndFlush(tcpMsg);
     }
 }

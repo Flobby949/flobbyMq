@@ -11,11 +11,21 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class Event {
 
+    private String msgId;
+
     private long timestamp;
     /**
      * 方便使用事件关联的上下文的回写机制
      */
     private ChannelHandlerContext ctx;
+
+    public String getMsgId() {
+        return msgId;
+    }
+
+    public void setMsgId(String msgId) {
+        this.msgId = msgId;
+    }
 
     public long getTimestamp() {
         return timestamp;

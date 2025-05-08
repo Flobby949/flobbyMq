@@ -15,6 +15,8 @@ import top.flobby.mq.common.coder.TcpMsgEncoder;
 import top.flobby.mq.common.utils.AssertUtil;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.config.NameServerProperties;
+import top.flobby.mq.nameserver.enums.ReplicationModeEnum;
+import top.flobby.mq.nameserver.enums.ReplicationRoleEnum;
 import top.flobby.mq.nameserver.event.EventBus;
 import top.flobby.mq.nameserver.handler.MasterReplicationServerHandler;
 import top.flobby.mq.nameserver.handler.SlaveReplicationServerHandler;

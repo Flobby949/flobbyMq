@@ -2,8 +2,8 @@ package top.flobby.mq.nameserver.store;
 
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
-import top.flobby.mq.nameserver.replication.ReplicationModeEnum;
-import top.flobby.mq.nameserver.replication.ReplicationRoleEnum;
+import top.flobby.mq.nameserver.enums.ReplicationModeEnum;
+import top.flobby.mq.nameserver.enums.ReplicationRoleEnum;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;

@@ -10,6 +10,7 @@ import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.nameserver.event.EventBus;
 import top.flobby.mq.nameserver.event.model.Event;
 import top.flobby.mq.nameserver.event.model.SlaveHeartBeatEvent;
+import top.flobby.mq.nameserver.event.model.SlaveReplicationMsgAckEvent;
 import top.flobby.mq.nameserver.event.model.StartReplicationEvent;
 
 /**
@@ -40,6 +41,8 @@ public class MasterReplicationServerHandler extends SimpleChannelInboundHandler<
             event = JSON.parseObject(body, StartReplicationEvent.class);
         } else if (code == NameServerEventCodeEnum.SLAVE_HEART_BEAT.getCode()) {
             event = JSON.parseObject(body, SlaveHeartBeatEvent.class);
+        } else if (code == NameServerEventCodeEnum.SLAVE_REPLICATION_ACK.getCode()) {
+            event = JSON.parseObject(body, SlaveReplicationMsgAckEvent.class);
         }
 
         // 连接建立完成后，master收到的数据，同步发送给slave节点

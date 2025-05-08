@@ -2,8 +2,11 @@ package top.flobby.mq.nameserver.event.spi.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
+import top.flobby.mq.nameserver.event.model.SlaveReplicationMsgAckEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;
 
 /**
@@ -23,5 +26,10 @@ public class SlaveReplicationMsgListener implements Listener<ReplicationMsgEvent
         // 从节点接受主节点同步数据
         CommonCache.getServiceInstanceManager().put(serviceInstance);
         LOGGER.info("从节点接受主节点数据");
+        String masterEventId = event.getMsgId();
+        SlaveReplicationMsgAckEvent ackEvent = new SlaveReplicationMsgAckEvent();
+        ackEvent.setMsgId(masterEventId);
+        TcpMsg msg = new TcpMsg(NameServerEventCodeEnum.MASTER_REPLICATION_MSG.getCode(), ackEvent);
+        event.getCtx().channel().writeAndFlush(msg);
     }
 }

@@ -51,7 +51,5 @@ public class RegistryListener implements Listener<RegistryEvent>{
         replicationMsgEvent.setCtx(ctx);
         replicationMsgEvent.setTimestamp(System.currentTimeMillis());
         CommonCache.getReplicationMsgQueueManager().put(replicationMsgEvent);
-        TcpMsg tcpMsg = new TcpMsg(NameServerResponseCodeEnum.REGISTRY_SUCCESS);
-        ctx.writeAndFlush(tcpMsg);
     }
 }
