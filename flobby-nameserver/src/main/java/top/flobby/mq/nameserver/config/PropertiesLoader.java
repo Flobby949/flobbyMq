@@ -26,10 +26,11 @@ public class PropertiesLoader {
         nameServerProperties.setNameserverUser(getStr("nameserver.user"));
         nameServerProperties.setNameserverPort(getInt("nameserver.port"));
         nameServerProperties.setReplicationMode(getStr("nameserver.replication.mode"));
-        NameServerProperties.TraceReplicationProperties traceReplicationProperties = new NameServerProperties.TraceReplicationProperties();
+        TraceReplicationProperties traceReplicationProperties = new TraceReplicationProperties();
         traceReplicationProperties.setNextNode(getStrCanBeNull("nameserver.replication.trace.nextNode"));
+        traceReplicationProperties.setPort(getInt("nameserver.replication.trace.port"));
         nameServerProperties.setTraceReplicationProperties(traceReplicationProperties);
-        NameServerProperties.MasterSlaveReplicationProperties masterSlaveReplicationProperties = new NameServerProperties.MasterSlaveReplicationProperties();
+        MasterSlaveReplicationProperties masterSlaveReplicationProperties = new MasterSlaveReplicationProperties();
         masterSlaveReplicationProperties.setMaster(getStrCanBeNull("nameserver.replication.master"));
         masterSlaveReplicationProperties.setRole(getStrCanBeNull("nameserver.replication.master-slave.role"));
         masterSlaveReplicationProperties.setType(getStrCanBeNull("nameserver.replication.master-slave.type"));
@@ -57,6 +58,14 @@ public class PropertiesLoader {
 
     private Integer getInt(String key) {
         return Integer.valueOf(getStr(key));
+    }
+
+    private Integer getIntCanBeNull(String key) {
+        String value = properties.getProperty(key);
+        if (value == null) {
+            return null;
+        }
+        return Integer.valueOf(value);
     }
 
     public String getProperty(String key) {

@@ -11,7 +11,7 @@ public enum ReplicationRoleEnum {
     MASTER("master", "主节点"),
     SLAVE("slave", "从节点"),
 
-    HEADER("header", "头节点"),
+    TAIL("tail", "尾节点"),
     NODE("node", "普通节点"),
 
     ;
