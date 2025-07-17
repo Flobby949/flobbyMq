@@ -16,6 +16,6 @@ public interface Listener <E extends Event> {
      *
      * @param event event
      */
-    void onReceive(E event) throws IllegalAccessException;
+    void onReceive(E event) throws Exception;
 
 }

@@ -86,6 +86,6 @@ public class MasterReplicationMsgSendTask extends ReplicationTask{
      * 发送 msg 到 ackMap
      */
     private void inputMsgToAckMap(ReplicationMsgEvent replicationMsgEvent, int needAckTimes) {
-        CommonCache.getAckMap().put(replicationMsgEvent.getMsgId(), new SlaveAckDto(needAckTimes, replicationMsgEvent.getCtx()));
+        CommonCache.getSlaveAckMap().put(replicationMsgEvent.getMsgId(), new SlaveAckDto(needAckTimes, replicationMsgEvent.getCtx()));
     }
 }

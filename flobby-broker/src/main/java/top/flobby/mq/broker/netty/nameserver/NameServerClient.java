@@ -96,6 +96,7 @@ public class NameServerClient {
             dto.setPassword(globalProperties.getNameserverPassword());
             TcpMsg tcpMsg = new TcpMsg(NameServerEventCodeEnum.REGISTRY.getCode(), JSON.toJSONBytes(dto));
             channel.writeAndFlush(tcpMsg);
+            LOGGER.info("发送注册事件");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -21,7 +21,7 @@ public class SlaveReplicationMsgListener implements Listener<ReplicationMsgEvent
     public static final Logger LOGGER = LoggerFactory.getLogger(SlaveReplicationMsgListener.class);
 
     @Override
-    public void onReceive(ReplicationMsgEvent event) throws IllegalAccessException {
+    public void onReceive(ReplicationMsgEvent event) throws Exception {
         ServiceInstance serviceInstance = event.getServiceInstance();
         // 从节点接受主节点同步数据
         CommonCache.getServiceInstanceManager().put(serviceInstance);

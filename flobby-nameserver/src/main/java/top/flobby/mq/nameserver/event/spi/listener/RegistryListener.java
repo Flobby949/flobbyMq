@@ -8,10 +8,13 @@ import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
+import top.flobby.mq.nameserver.enums.ReplicationMsgTypeEnum;
 import top.flobby.mq.nameserver.event.model.RegistryEvent;
 import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;
 import top.flobby.mq.nameserver.utils.NameServerUtil;
+
+import java.util.UUID;
 
 /**
  * @author : flobby
@@ -24,7 +27,7 @@ public class RegistryListener implements Listener<RegistryEvent>{
     public static final Logger LOGGER = LoggerFactory.getLogger(RegistryListener.class);
 
     @Override
-    public void onReceive(RegistryEvent event) throws IllegalAccessException {
+    public void onReceive(RegistryEvent event) throws Exception {
         // 安全认证，简单通过密码实现
         String user = event.getUser();
         String password = event.getPassword();
@@ -47,8 +50,10 @@ public class RegistryListener implements Listener<RegistryEvent>{
         CommonCache.getServiceInstanceManager().put(serviceInstance);
         // 如果当前是主从复制模式，且当前时主节点，则向队列中塞入对象
         ReplicationMsgEvent replicationMsgEvent = new ReplicationMsgEvent();
+        replicationMsgEvent.setMsgId(UUID.randomUUID().toString());
         replicationMsgEvent.setServiceInstance(serviceInstance);
         replicationMsgEvent.setCtx(ctx);
+        replicationMsgEvent.setType(ReplicationMsgTypeEnum.REGISTRY);
         replicationMsgEvent.setTimestamp(System.currentTimeMillis());
         CommonCache.getReplicationMsgQueueManager().put(replicationMsgEvent);
     }

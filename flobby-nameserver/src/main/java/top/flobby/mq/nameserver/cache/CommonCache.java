@@ -1,6 +1,7 @@
 package top.flobby.mq.nameserver.cache;
 
 import io.netty.channel.Channel;
+import top.flobby.mq.common.dto.NodeAckDto;
 import top.flobby.mq.common.dto.SlaveAckDto;
 import top.flobby.mq.nameserver.config.NameServerProperties;
 import top.flobby.mq.nameserver.replication.ReplicationTask;
@@ -24,17 +25,37 @@ public class CommonCache {
     private static NameServerProperties nameServerProperties = new NameServerProperties();
     private static ReplicationChannelManager replicationChannelManager = new ReplicationChannelManager();
     private static ReplicationTask replicationTask;
-    private static Channel masterConnection = null;
+    private static Channel connectNodeChannel = null;
+    // 上一个节点的channel通道
+    private static Channel prevNodeChannel = null;
     private static ReplicationMsgQueueManager replicationMsgQueueManager = new ReplicationMsgQueueManager();
     // 主从复制消息的ack队列，key-消息id，value-需要ack的次数
-    private static Map<String, SlaveAckDto> ackMap = new ConcurrentHashMap<>();
+    private static Map<String, SlaveAckDto> slaveAckMap = new ConcurrentHashMap<>();
+    // 链式复制消息的ack队列
+    private static Map<String, NodeAckDto> nodeAckMap = new ConcurrentHashMap<>();
 
-    public static Map<String, SlaveAckDto> getAckMap() {
-        return ackMap;
+    public static Map<String, NodeAckDto> getNodeAckMap() {
+        return nodeAckMap;
     }
 
-    public static void setAckMap(Map<String, SlaveAckDto> ackMap) {
-        CommonCache.ackMap = ackMap;
+    public static void setNodeAckMap(Map<String, NodeAckDto> nodeAckMap) {
+        CommonCache.nodeAckMap = nodeAckMap;
+    }
+
+    public static Channel getPrevNodeChannel() {
+        return prevNodeChannel;
+    }
+
+    public static void setPrevNodeChannel(Channel prevNodeChannel) {
+        CommonCache.prevNodeChannel = prevNodeChannel;
+    }
+
+    public static Map<String, SlaveAckDto> getSlaveAckMap() {
+        return slaveAckMap;
+    }
+
+    public static void setSlaveAckMap(Map<String, SlaveAckDto> slaveAckMap) {
+        CommonCache.slaveAckMap = slaveAckMap;
     }
 
     public static ReplicationMsgQueueManager getReplicationMsgQueueManager() {
@@ -53,12 +74,12 @@ public class CommonCache {
         CommonCache.replicationTask = replicationTask;
     }
 
-    public static Channel getMasterConnection() {
-        return masterConnection;
+    public static Channel getConnectNodeChannel() {
+        return connectNodeChannel;
     }
 
-    public static void setMasterConnection(Channel masterConnection) {
-        CommonCache.masterConnection = masterConnection;
+    public static void setConnectNodeChannel(Channel connectNodeChannel) {
+        CommonCache.connectNodeChannel = connectNodeChannel;
     }
 
     public static ReplicationChannelManager getReplicationChannelManager() {

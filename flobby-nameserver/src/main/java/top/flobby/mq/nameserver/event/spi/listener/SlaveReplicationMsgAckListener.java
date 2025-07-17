@@ -16,15 +16,15 @@ import top.flobby.mq.nameserver.event.model.SlaveReplicationMsgAckEvent;
 
 public class SlaveReplicationMsgAckListener implements Listener<SlaveReplicationMsgAckEvent>{
     @Override
-    public void onReceive(SlaveReplicationMsgAckEvent event) throws IllegalAccessException {
+    public void onReceive(SlaveReplicationMsgAckEvent event) throws Exception {
         String masterReplicationMsgId = event.getMsgId();
-        SlaveAckDto slaveAckDto = CommonCache.getAckMap().get(masterReplicationMsgId);
+        SlaveAckDto slaveAckDto = CommonCache.getSlaveAckMap().get(masterReplicationMsgId);
         AssertUtil.isNotNull(slaveAckDto, "error slave ack msg id: " + masterReplicationMsgId);
         int currentAckTime = slaveAckDto.getNeedAckTimes().decrementAndGet();
         // 如果是同步复制模式，代表所有从节点已经ack了
         // 如果是半同步复制模式，代表已经过半
         if (currentAckTime == 0) {
-            CommonCache.getAckMap().remove(masterReplicationMsgId);
+            CommonCache.getSlaveAckMap().remove(masterReplicationMsgId);
             slaveAckDto.getBrokerChannel().writeAndFlush(new TcpMsg(NameServerResponseCodeEnum.REGISTRY_SUCCESS));
         }
     }

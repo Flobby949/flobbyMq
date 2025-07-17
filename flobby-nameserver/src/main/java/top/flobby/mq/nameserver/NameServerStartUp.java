@@ -1,7 +1,10 @@
 package top.flobby.mq.nameserver;
 
+import org.apache.commons.lang3.StringUtils;
 import top.flobby.mq.nameserver.cache.CommonCache;
+import top.flobby.mq.nameserver.config.NameServerProperties;
 import top.flobby.mq.nameserver.config.PropertiesLoader;
+import top.flobby.mq.nameserver.config.TraceReplicationProperties;
 import top.flobby.mq.nameserver.core.InValidServiceRemoveTask;
 import top.flobby.mq.nameserver.core.NameServerStarter;
 import top.flobby.mq.nameserver.enums.ReplicationModeEnum;
@@ -25,11 +28,13 @@ public class NameServerStartUp {
     private static void initReplication() {
         // 复制逻辑初始化
         ReplicationModeEnum mode = replicationService.checkProperties();
-        // 感觉角色启动netty进程
+        // 根据角色启动netty进程
         replicationService.startReplicationTask(mode);
+        // 开始定时任务
+        ReplicationTask replicationTask = null;
+        NameServerProperties nameServerProperties = CommonCache.getNameServerProperties();
         if (mode.equals(ReplicationModeEnum.MASTER_SLAVE)) {
-            ReplicationRoleEnum role = ReplicationRoleEnum.of(CommonCache.getNameServerProperties().getMasterSlaveReplicationProperties().getRole());
-            ReplicationTask replicationTask = null;
+            ReplicationRoleEnum role = ReplicationRoleEnum.of(nameServerProperties.getMasterSlaveReplicationProperties().getRole());
             if (role.equals(ReplicationRoleEnum.MASTER)) {
                 // 开启主从同步复制
                 replicationTask = new MasterReplicationMsgSendTask("master-replication-msg-send-task");
@@ -39,8 +44,16 @@ public class NameServerStartUp {
                 replicationTask = new SlaveReplicationHeartBeatTask("slave-replication-heartbeat-send-task");
                 replicationTask.startTaskAsync();
             }
-            CommonCache.setReplicationTask(replicationTask);
+        } else if (mode.equals(ReplicationModeEnum.TRACE)) {
+            // 判断是否是尾节点
+            TraceReplicationProperties traceReplicationProperties = nameServerProperties.getTraceReplicationProperties();
+            if (StringUtils.isNotBlank(traceReplicationProperties.getNextNode())) {
+                // 非尾节点
+                replicationTask = new NodeReplicationSendMsgTask("node-replication-msg-send-task");
+                replicationTask.startTaskAsync();
+            }
         }
+        CommonCache.setReplicationTask(replicationTask);
     }
 
     private static void initInvalidServiceRemoveTask() {

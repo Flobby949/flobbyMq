@@ -1,5 +1,6 @@
 package top.flobby.mq.nameserver.event.spi.listener;
 
+import com.alibaba.fastjson2.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
@@ -7,9 +8,12 @@ import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.nameserver.cache.CommonCache;
+import top.flobby.mq.nameserver.enums.ReplicationMsgTypeEnum;
 import top.flobby.mq.nameserver.event.model.HeartBeatEvent;
 import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;
+
+import java.util.UUID;
 
 /**
  * @author : flobby
@@ -22,7 +26,7 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
     public static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatListener.class);
 
     @Override
-    public void onReceive(HeartBeatEvent event) throws IllegalAccessException {
+    public void onReceive(HeartBeatEvent event) throws Exception {
         // 认证通过后，有心跳包
         ChannelHandlerContext ctx = event.getCtx();
         // 如果存在这个标识，证明之前认证过
@@ -34,7 +38,7 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
             ctx.close();
             throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_ACCESS.getDesc());
         }
-        // LOGGER.info("收到心跳包：{}", JSON.toJSONString(event));
+        LOGGER.info("收到心跳包：{}", JSON.toJSONString(event));
         // 心跳，客户端固定间隔发送
         String brokerIdentifyStr = (String) ctx.channel().attr(AttributeKey.valueOf("reqId")).get();
         String[] brokerInfoArr = brokerIdentifyStr.split(":");
@@ -46,6 +50,8 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
         // 同步
         ReplicationMsgEvent replicationMsgEvent = new ReplicationMsgEvent();
         replicationMsgEvent.setServiceInstance(serviceInstance);
+        replicationMsgEvent.setMsgId(UUID.randomUUID().toString());
+        replicationMsgEvent.setType(ReplicationMsgTypeEnum.HEART_BEAT);
         replicationMsgEvent.setCtx(ctx);
         replicationMsgEvent.setTimestamp(System.currentTimeMillis());
         CommonCache.getReplicationMsgQueueManager().put(replicationMsgEvent);

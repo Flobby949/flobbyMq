@@ -3,6 +3,8 @@ package top.flobby.mq.common.coder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.constant.NameServerConstants;
 
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.List;
  **/
 
 public class TcpMsgDecoder extends ByteToMessageDecoder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TcpMsgDecoder.class);
+
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> in) throws Exception {
         // byte buf 可读字节数大于 2 + 4 + 4（TcpMsg的最小长度），才能保证数据包可能是完整的
@@ -41,6 +45,7 @@ public class TcpMsgDecoder extends ByteToMessageDecoder {
             tcpMsg.setLen(len);
             tcpMsg.setBody(body);
             in.add(tcpMsg);
+            // LOGGER.info("消息解码器：code : {}", tcpMsg.getCode());
         }
     }
 }

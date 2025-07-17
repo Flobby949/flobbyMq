@@ -77,13 +77,12 @@ public class ReplicationService {
             roleEnum = ReplicationRoleEnum.of(nameServerProperties.getMasterSlaveReplicationProperties().getRole());
         } else {
             String nextNode = nameServerProperties.getTraceReplicationProperties().getNextNode();
+            port = nameServerProperties.getTraceReplicationProperties().getPort();
             // 如果没有下一个节点，那就是尾部节点
             if (StringUtils.isNotBlank(nextNode)) {
                 // 普通节点才需要开启netty，才需要端口
                 roleEnum = ReplicationRoleEnum.NODE;
-                port = nameServerProperties.getTraceReplicationProperties().getPort();
             } else {
-                port = 0;
                 roleEnum = ReplicationRoleEnum.TAIL;
             }
         }
@@ -101,7 +100,7 @@ public class ReplicationService {
             // 向下一个节点发送同步消息
             startNettyConnectAsync(new NodeSendReplicationMsgServerHandler(new EventBus("node-send-replication-msg-task")), nextNodeAddress);
         } else if (roleEnum.equals(ReplicationRoleEnum.TAIL)) {
-            startNettyServerAsync(new MasterReplicationServerHandler(new EventBus("tail-replication-task")), port);
+            startNettyServerAsync(new NodeWriteMsgReplicationServerHandler(new EventBus("node-write-msg-replication-task")), port);
         }
         // });
         // replicationTask.setName("replication-task");
@@ -187,7 +186,7 @@ public class ReplicationService {
                 channelFuture = bootstrap.connect(addressArr[0], Integer.parseInt(addressArr[1])).sync();
                 // 连接了master节点的channel对象，需要保存
                 channel = channelFuture.channel();
-                CommonCache.setMasterConnection(channel);
+                CommonCache.setConnectNodeChannel(channel);
                 LOGGER.info("成功连接到master节点：{}", address);
                 channel.closeFuture().sync();
             } catch (InterruptedException e) {

@@ -1,11 +1,18 @@
 package top.flobby.mq.nameserver.handler;
 
+import com.alibaba.fastjson2.JSON;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.enums.NameServerEventCodeEnum;
+import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.EventBus;
+import top.flobby.mq.nameserver.event.model.Event;
+import top.flobby.mq.nameserver.event.model.NodeReplicationMsgEvent;
+
+import java.util.Objects;
 
 /**
  * @author : flobby
@@ -27,6 +34,22 @@ public class NodeWriteMsgReplicationServerHandler extends SimpleChannelInboundHa
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg tcpMsg) throws Exception {
-
+        int code = tcpMsg.getCode();
+        byte[] body = tcpMsg.getBody();
+        Event event;
+        switch (Objects.requireNonNull(NameServerEventCodeEnum.getByCode(code))) {
+            case NODE_REPLICATION_MSG:
+                // 注册事件
+                event = JSON.parseObject(body, NodeReplicationMsgEvent.class);
+                break;
+            default:
+                event = new Event();
+                break;
+        }
+        event.setCtx(channelHandlerContext);
+        event.setTimestamp(System.currentTimeMillis());
+        // 记录一下上一个节点的channel
+        CommonCache.setPrevNodeChannel(channelHandlerContext.channel());
+        eventBus.publish(event);
     }
 }

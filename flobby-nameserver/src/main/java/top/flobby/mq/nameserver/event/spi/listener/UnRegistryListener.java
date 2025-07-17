@@ -20,7 +20,7 @@ public class UnRegistryListener implements Listener<UnRegistryEvent>{
     public static final Logger LOGGER = LoggerFactory.getLogger(UnRegistryListener.class);
 
     @Override
-    public void onReceive(UnRegistryEvent event) throws IllegalAccessException {
+    public void onReceive(UnRegistryEvent event) throws Exception {
         ChannelHandlerContext ctx = event.getCtx();
         // 先校验是否有权限
         if (!ctx.channel().hasAttr(AttributeKey.valueOf("reqId")))  {

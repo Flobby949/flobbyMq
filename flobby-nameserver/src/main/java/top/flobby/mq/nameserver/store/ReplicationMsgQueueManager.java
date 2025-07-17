@@ -1,9 +1,13 @@
 package top.flobby.mq.nameserver.store;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.flobby.mq.nameserver.cache.CommonCache;
-import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
+import top.flobby.mq.nameserver.config.TraceReplicationProperties;
 import top.flobby.mq.nameserver.enums.ReplicationModeEnum;
 import top.flobby.mq.nameserver.enums.ReplicationRoleEnum;
+import top.flobby.mq.nameserver.event.model.ReplicationMsgEvent;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -16,6 +20,8 @@ import java.util.concurrent.BlockingQueue;
  **/
 
 public class ReplicationMsgQueueManager {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(ReplicationMsgQueueManager.class);
 
     private BlockingQueue<ReplicationMsgEvent> replicationQueue = new ArrayBlockingQueue<>(5000);
 
@@ -34,12 +40,24 @@ public class ReplicationMsgQueueManager {
             if (roleEnum.equals(ReplicationRoleEnum.SLAVE)) {
                 return;
             }
-            try {
-                System.out.println("向阻塞队列中添加数据");
-                replicationQueue.put(replicationMsgEvent);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            sendMsgToQueue(replicationMsgEvent);
+
+        } else if (modeEnum.equals(ReplicationModeEnum.TRACE)) {
+            TraceReplicationProperties traceReplicationProperties = CommonCache.getNameServerProperties().getTraceReplicationProperties();
+            if (StringUtils.isNotBlank(traceReplicationProperties.getNextNode())) {
+                // 如果有下一个节点（非尾节点），需要和下一个节点进行通信
+                sendMsgToQueue(replicationMsgEvent);
             }
+        }
+    }
+
+
+    private void sendMsgToQueue(ReplicationMsgEvent replicationMsgEvent) {
+        try {
+            // LOGGER.info("向阻塞队列中添加数据: {}", JSON.toJSONString(replicationMsgEvent));
+            replicationQueue.put(replicationMsgEvent);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -29,7 +29,7 @@ public class EventBus {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventBus.class);
 
-    private static Map<Class<? extends Event>, List<Listener<? super Event>>> eventListenerMap = new ConcurrentHashMap<>();
+    private Map<Class<? extends Event>, List<Listener<? super Event>>> eventListenerMap = new ConcurrentHashMap<>();
 
     /**
      * 线程任务名称

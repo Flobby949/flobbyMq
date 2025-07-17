@@ -20,7 +20,7 @@ import java.net.InetSocketAddress;
 
 public class StartReplicationListener implements Listener<StartReplicationEvent>{
     @Override
-    public void onReceive(StartReplicationEvent event) throws IllegalAccessException {
+    public void onReceive(StartReplicationEvent event) throws Exception {
         boolean isVerify = NameServerUtil.checkUserAndPassword(event.getUser(), event.getPassword());
         ChannelHandlerContext ctx = event.getCtx();
         if (!isVerify) {

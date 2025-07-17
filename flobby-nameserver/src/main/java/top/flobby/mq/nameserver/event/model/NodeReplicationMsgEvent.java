@@ -6,11 +6,12 @@ import top.flobby.mq.nameserver.store.ServiceInstance;
 /**
  * @author : flobby
  * @program : flobbyMq
- * @description : 复制任务事件
- * @create : 2025-05-07 14:51
+ * @description :
+ * @create : 2025-05-21 15:32
  **/
 
-public class ReplicationMsgEvent extends Event{
+public class NodeReplicationMsgEvent extends Event{
+
     /**
      * @see top.flobby.mq.nameserver.enums.ReplicationMsgTypeEnum
      */

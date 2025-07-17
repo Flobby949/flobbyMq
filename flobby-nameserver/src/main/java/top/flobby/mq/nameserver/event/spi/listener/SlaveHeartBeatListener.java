@@ -16,7 +16,7 @@ public class SlaveHeartBeatListener implements Listener<SlaveHeartBeatEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlaveHeartBeatListener.class);
 
     @Override
-    public void onReceive(SlaveHeartBeatEvent event) throws IllegalAccessException {
+    public void onReceive(SlaveHeartBeatEvent event) throws Exception {
         // LOGGER.info("收到从节点心跳");
     }
 }

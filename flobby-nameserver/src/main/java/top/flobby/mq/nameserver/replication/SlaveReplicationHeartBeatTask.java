@@ -37,13 +37,13 @@ public class SlaveReplicationHeartBeatTask extends ReplicationTask {
         event.setUser(CommonCache.getNameServerProperties().getNameserverUser());
         event.setPassword(CommonCache.getNameServerProperties().getNameserverPassword());
         TcpMsg startReplicationMsg = new TcpMsg(NameServerEventCodeEnum.START_REPLICATION.getCode(), event);
-        CommonCache.getMasterConnection().writeAndFlush(startReplicationMsg);
+        CommonCache.getConnectNodeChannel().writeAndFlush(startReplicationMsg);
         LOGGER.info("从节点向主节点发送 START_REPLICATION 消息");
         while (true) {
             try {
                 // 这里等待了三秒，可以看作等待主节点收到开始同步的消息
                 TimeUnit.SECONDS.sleep(3);
-                Channel channel = CommonCache.getMasterConnection();
+                Channel channel = CommonCache.getConnectNodeChannel();
                 TcpMsg tcpMsg = new TcpMsg(NameServerEventCodeEnum.SLAVE_HEART_BEAT.getCode(), new SlaveHeartBeatEvent());
                 channel.writeAndFlush(tcpMsg);
                 // LOGGER.info("从节点向主节点发送心跳数据");
