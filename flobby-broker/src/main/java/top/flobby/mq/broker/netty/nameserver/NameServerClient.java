@@ -17,10 +17,14 @@ import top.flobby.mq.broker.config.GlobalProperties;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.coder.TcpMsgDecoder;
 import top.flobby.mq.common.coder.TcpMsgEncoder;
-import top.flobby.mq.common.dto.RegistryDto;
+import top.flobby.mq.common.dto.ServiceRegistryReqDto;
+import top.flobby.mq.common.enums.BrokerRoleEnum;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
+import top.flobby.mq.common.enums.RegistryTypeEnum;
 
 import java.net.Inet4Address;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author : flobby
@@ -87,13 +91,19 @@ public class NameServerClient {
      * 发送注册消息
      */
     public void sendRegistryMsg() {
-        RegistryDto dto = new RegistryDto();
+        ServiceRegistryReqDto dto = new ServiceRegistryReqDto();
         try {
-            dto.setBrokerIp(Inet4Address.getLocalHost().getHostAddress());
+            dto.setIp(Inet4Address.getLocalHost().getHostAddress());
             GlobalProperties globalProperties = CommonCache.getGlobalProperties();
-            dto.setBrokerPort(globalProperties.getBrokerPort());
+            dto.setPort(globalProperties.getBrokerPort());
             dto.setUser(globalProperties.getNameserverUser());
             dto.setPassword(globalProperties.getNameserverPassword());
+            dto.setRegistryType(RegistryTypeEnum.BROKER.name());
+            // 假设 broker是主从架构，(producer向主节点发送数据，consumer从从节点拉取数据)
+            Map<String, Object> attrs = new HashMap<>();
+            // TODO 暂时写死master
+            attrs.put("role", BrokerRoleEnum.MASTER.name());
+            dto.setAttrs(attrs);
             TcpMsg tcpMsg = new TcpMsg(NameServerEventCodeEnum.REGISTRY.getCode(), JSON.toJSONBytes(dto));
             channel.writeAndFlush(tcpMsg);
             LOGGER.info("发送注册事件");

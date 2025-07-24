@@ -20,7 +20,8 @@ public enum NameServerEventCodeEnum {
     SLAVE_REPLICATION_ACK(8, "从节点复制消息成功"),
 
     NODE_REPLICATION_MSG(9, "链式复制节点同步数据"),
-    NODE_REPLICATION_ACK_MSG(10, "链式复制数据同步ACK消息")
+    NODE_REPLICATION_ACK_MSG(10, "链式复制数据同步ACK消息"),
+    PULL_BROKER_MASTER_IP(11, "拉取Broker主节点的ip"),
     ;
 
     final int code;

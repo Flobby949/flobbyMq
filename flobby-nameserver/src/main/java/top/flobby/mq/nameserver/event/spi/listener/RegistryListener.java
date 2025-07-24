@@ -48,9 +48,11 @@ public class RegistryListener implements Listener<RegistryEvent>{
         // 认证成功的话，设置一个标识
         ctx.channel().attr(AttributeKey.valueOf("reqId")).set(event.getIp() + ":" + event.getPort());
         ServiceInstance serviceInstance = new ServiceInstance();
+        serviceInstance.setRegistryType(event.getRegistryType());
         serviceInstance.setIp(event.getIp());
         serviceInstance.setPort(event.getPort());
         serviceInstance.setFirstRegistryTime(event.getTimestamp());
+        serviceInstance.setAttrs(event.getAttrs());
         CommonCache.getServiceInstanceManager().put(serviceInstance);
         ReplicationModeEnum modeEnum = ReplicationModeEnum.of(CommonCache.getNameServerProperties().getReplicationMode());
         if (modeEnum == null || modeEnum.equals(ReplicationModeEnum.SINGLE)) {

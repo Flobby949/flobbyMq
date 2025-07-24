@@ -51,7 +51,7 @@ public class HeartBeatListener implements Listener<HeartBeatEvent>{
         serviceInstance.setIp(brokerInfoArr[0]);
         serviceInstance.setPort(Integer.parseInt(brokerInfoArr[1]));
         serviceInstance.setLastHeartBeatTime(event.getTimestamp());
-        CommonCache.getServiceInstanceManager().putIfExist(serviceInstance);
+        CommonCache.getServiceInstanceManager().freshHeartBeat(serviceInstance);
         ReplicationModeEnum modeEnum = ReplicationModeEnum.of(CommonCache.getNameServerProperties().getReplicationMode());
         if (modeEnum == null || modeEnum.equals(ReplicationModeEnum.SINGLE)) {
             // 单机架构

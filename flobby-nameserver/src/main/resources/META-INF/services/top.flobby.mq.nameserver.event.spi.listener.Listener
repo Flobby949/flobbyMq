@@ -7,3 +7,4 @@ top.flobby.mq.nameserver.event.spi.listener.SlaveHeartBeatListener
 top.flobby.mq.nameserver.event.spi.listener.SlaveReplicationMsgAckListener
 top.flobby.mq.nameserver.event.spi.listener.NodeReplicationMsgListener
 top.flobby.mq.nameserver.event.spi.listener.NodeReplicationAckMsgListener
+top.flobby.mq.nameserver.event.spi.listener.PullBrokerIpListener

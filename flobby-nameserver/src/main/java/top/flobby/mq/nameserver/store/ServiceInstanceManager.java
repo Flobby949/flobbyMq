@@ -13,12 +13,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServiceInstanceManager {
     private Map<String, ServiceInstance> serviceInstanceMap = new ConcurrentHashMap<>();
 
-    public void putIfExist(ServiceInstance serviceInstance) {
+    public void freshHeartBeat(ServiceInstance serviceInstance) {
         ServiceInstance currentInstance = this.get(serviceInstance.getIp(), serviceInstance.getPort());
         if (currentInstance != null && currentInstance.getFirstRegistryTime() != null) {
-            serviceInstance.setFirstRegistryTime(currentInstance.getFirstRegistryTime());
+            currentInstance.setLastHeartBeatTime(serviceInstance.getLastHeartBeatTime());
+            serviceInstanceMap.put(serviceInstance.getIp() + ":" + serviceInstance.getPort(), currentInstance);
+        } else {
+            throw new RuntimeException("服务实例不存在, 请重新注册");
         }
-        serviceInstanceMap.put(serviceInstance.getIp() + ":" + serviceInstance.getPort(), serviceInstance);
     }
 
     public void put(ServiceInstance serviceInstance) {

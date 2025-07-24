@@ -11,6 +11,11 @@ import java.util.Map;
  **/
 
 public class ServiceInstance {
+
+    /**
+     * @see top.flobby.mq.common.enums.RegistryTypeEnum
+     */
+    private String registryType;
     private String ip;
     private Integer port;
     private Long firstRegistryTime;
@@ -18,7 +23,15 @@ public class ServiceInstance {
     /**
      * 元数据
      */
-    private Map<String, String> attrs = new HashMap<>();
+    private Map<String, Object> attrs = new HashMap<>();
+
+    public String getRegistryType() {
+        return registryType;
+    }
+
+    public void setRegistryType(String registryType) {
+        this.registryType = registryType;
+    }
 
     public String getIp() {
         return ip;
@@ -52,11 +65,11 @@ public class ServiceInstance {
         this.lastHeartBeatTime = lastHeartBeatTime;
     }
 
-    public Map<String, String> getAttrs() {
+    public Map<String, Object> getAttrs() {
         return attrs;
     }
 
-    public void setAttrs(Map<String, String> attrs) {
+    public void setAttrs(Map<String, Object> attrs) {
         this.attrs = attrs;
     }
 }

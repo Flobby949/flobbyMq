@@ -7,13 +7,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.HeartbeatDto;
+import top.flobby.mq.common.dto.PullBrokerIpReqDto;
 import top.flobby.mq.common.dto.ServiceRegistryReqDto;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.nameserver.event.EventBus;
-import top.flobby.mq.nameserver.event.model.Event;
-import top.flobby.mq.nameserver.event.model.HeartBeatEvent;
-import top.flobby.mq.nameserver.event.model.RegistryEvent;
-import top.flobby.mq.nameserver.event.model.UnRegistryEvent;
+import top.flobby.mq.nameserver.event.model.*;
 
 import java.net.InetSocketAddress;
 import java.util.Objects;
@@ -68,6 +66,13 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
                 HeartBeatEvent heartBeatEvent = new HeartBeatEvent();
                 heartBeatEvent.setMsgId(heartbeatDto.getMsgId());
                 event = heartBeatEvent;
+                break;
+            case PULL_BROKER_MASTER_IP:
+                PullBrokerIpReqDto pullBrokerIpReqDto = JSON.parseObject(body, PullBrokerIpReqDto.class);
+                PullBrokerIpEvent pullBrokerIpEvent = new PullBrokerIpEvent();
+                pullBrokerIpEvent.setMsgId(pullBrokerIpReqDto.getMsgId());
+                pullBrokerIpEvent.setRole(pullBrokerIpReqDto.getRole());
+                event = pullBrokerIpEvent;
                 break;
             default:
                 event = new Event();

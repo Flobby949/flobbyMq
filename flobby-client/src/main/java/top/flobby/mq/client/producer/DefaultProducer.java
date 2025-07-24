@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.HeartbeatDto;
+import top.flobby.mq.common.dto.PullBrokerIpReqDto;
 import top.flobby.mq.common.dto.ServiceRegistryReqDto;
+import top.flobby.mq.common.enums.BrokerRoleEnum;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.common.enums.RegistryTypeEnum;
@@ -67,7 +69,10 @@ public class DefaultProducer {
         nameServerNettyRemoteClient = new NameServerNettyRemoteClient(nsIp, nsPort);
         nameServerNettyRemoteClient.buildConnection();
         if (doRegistry()) {
+            // 开启心跳任务
             doHeartbeat();
+            // 拉取broker地址，broker如何将ip上报到nameserver？
+            fetchBrokerAddress(BrokerRoleEnum.MASTER.name());
         }
     }
 
@@ -89,6 +94,9 @@ public class DefaultProducer {
         }
     }
 
+    /**
+     * 心跳任务
+     */
     private void doHeartbeat() {
 
         new Thread(() -> {
@@ -108,5 +116,20 @@ public class DefaultProducer {
             }
         }, "heartbeat-task").start();
 
+    }
+
+    /**
+     * 获取broker地址
+     *
+     * @param role 角色
+     */
+    private void fetchBrokerAddress(String role) {
+        PullBrokerIpReqDto reqDto = new PullBrokerIpReqDto();
+        String msgId = UUID.randomUUID().toString();
+        reqDto.setMsgId(msgId);
+        reqDto.setRole(role);
+        TcpMsg reqMsg = new TcpMsg(NameServerEventCodeEnum.PULL_BROKER_MASTER_IP.getCode(), reqDto);
+        TcpMsg respMsg = nameServerNettyRemoteClient.sendSyncMsg(reqMsg, msgId);
+        LOGGER.info("拉取到broker地址：{}", respMsg);
     }
 }

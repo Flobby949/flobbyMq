@@ -3,8 +3,10 @@ package top.flobby.mq.broker.netty.nameserver;
 import io.netty.channel.Channel;
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.dto.HeartbeatDto;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,7 +40,9 @@ public class HeartBeatTaskManager {
                     TimeUnit.SECONDS.sleep(3);
                     Channel channel = CommonCache.getNameServerClient().getChannel();
                     // 心跳包不需要额外透传过多参数，只需要告诉nameserver这个broker存活即可
-                    TcpMsg tcpMsg = new TcpMsg(NameServerEventCodeEnum.HEART_BEAT);
+                    HeartbeatDto dto = new HeartbeatDto();
+                    dto.setMsgId(UUID.randomUUID().toString());
+                    TcpMsg tcpMsg = new TcpMsg(NameServerEventCodeEnum.HEART_BEAT.getCode(), dto);
                     channel.writeAndFlush(tcpMsg);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
