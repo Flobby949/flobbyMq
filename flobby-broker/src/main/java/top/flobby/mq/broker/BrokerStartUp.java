@@ -8,6 +8,7 @@ import top.flobby.mq.broker.core.CommitLogAppendHandler;
 import top.flobby.mq.broker.core.ConsumeQueueAppendHandler;
 import top.flobby.mq.broker.core.ConsumeQueueConsumeHandler;
 import top.flobby.mq.broker.model.TopicModel;
+import top.flobby.mq.broker.netty.broker.BrokerServerStarter;
 
 import java.io.IOException;
 
@@ -26,13 +27,16 @@ public class BrokerStartUp {
     private static ConsumerQueueOffsetLoader consumerQueueOffsetLoader;
     private static ConsumeQueueAppendHandler consumeQueueAppendHandler;
     private static ConsumeQueueConsumeHandler consumeQueueConsumeHandler;
-
+    private static BrokerServerStarter brokerServerStarter;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // 加载配置，缓存对象生成
         initProperties();
         // 初始化nameserver服务器通道
         initNameServerChannel();
+        // 创建broker服务，这里是阻塞的
+        brokerServerStarter = new BrokerServerStarter(CommonCache.getGlobalProperties().getBrokerPort());
+        brokerServerStarter.startServer();
     }
 
     /**

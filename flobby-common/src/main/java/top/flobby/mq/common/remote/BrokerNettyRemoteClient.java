@@ -13,15 +13,15 @@ import top.flobby.mq.common.coder.TcpMsgEncoder;
 /**
  * @author : flobby
  * @program : flobbyMq
- * @description : nameServer远程连接工具
+ * @description : 和broker进行远程连接的客户端
  * @create : 2025-07-21 09:49
  **/
 
-public class NameServerNettyRemoteClient {
+public class BrokerNettyRemoteClient {
     private String ip;
     private Integer port;
 
-    public NameServerNettyRemoteClient(String ip, Integer port) {
+    public BrokerNettyRemoteClient(String ip, Integer port) {
         this.ip = ip;
         this.port = port;
     }
@@ -38,7 +38,7 @@ public class NameServerNettyRemoteClient {
             protected void initChannel(SocketChannel socketChannel) throws Exception {
                 socketChannel.pipeline().addLast(new TcpMsgDecoder());
                 socketChannel.pipeline().addLast(new TcpMsgEncoder());
-                socketChannel.pipeline().addLast(new NameServerRemoteRespHandler());
+                socketChannel.pipeline().addLast(new BrokerRemoteRespHandler());
             }
         });
         ChannelFuture channelFuture = null;
@@ -47,7 +47,7 @@ public class NameServerNettyRemoteClient {
                 @Override
                 public void operationComplete(ChannelFuture channelFuture) throws Exception {
                     if (!channelFuture.isSuccess()) {
-                        throw new RuntimeException("connect nameserver has error!");
+                        throw new RuntimeException("connect Broker has error!");
                     }
                 }
             });

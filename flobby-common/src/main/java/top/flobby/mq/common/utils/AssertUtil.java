@@ -1,5 +1,7 @@
 package top.flobby.mq.common.utils;
 
+import java.util.List;
+
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -23,6 +25,12 @@ public class AssertUtil {
 
     public static void isNotBlank(String val, String msg) {
         if (val == null || val.trim().isEmpty()) {
+            throw new RuntimeException(msg);
+        }
+    }
+
+    public static void isNotEmpty(List val, String msg) {
+        if (val == null || val.isEmpty()) {
             throw new RuntimeException(msg);
         }
     }

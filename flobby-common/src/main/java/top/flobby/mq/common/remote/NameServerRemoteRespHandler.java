@@ -17,7 +17,7 @@ import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
  **/
 
 @ChannelHandler.Sharable
-public class NameServerRemoteHandler extends SimpleChannelInboundHandler<TcpMsg> {
+public class NameServerRemoteRespHandler extends SimpleChannelInboundHandler<TcpMsg> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg tcpMsg) throws Exception {
         int code = tcpMsg.getCode();

@@ -1,18 +1,25 @@
 package top.flobby.mq.client.producer;
 
+import com.alibaba.fastjson2.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.HeartbeatDto;
 import top.flobby.mq.common.dto.PullBrokerIpReqDto;
+import top.flobby.mq.common.dto.PullBrokerIpRespDto;
 import top.flobby.mq.common.dto.ServiceRegistryReqDto;
 import top.flobby.mq.common.enums.BrokerRoleEnum;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.common.enums.RegistryTypeEnum;
+import top.flobby.mq.common.remote.BrokerNettyRemoteClient;
 import top.flobby.mq.common.remote.NameServerNettyRemoteClient;
+import top.flobby.mq.common.utils.AssertUtil;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,6 +39,17 @@ public class DefaultProducer {
     private String nsUser;
     private String nsPassword;
     private NameServerNettyRemoteClient nameServerNettyRemoteClient;
+    private List<String> brokerAddressList;
+    // 所有的broker连接
+    private Map<String, BrokerNettyRemoteClient> brokerNettyRemoteClientMap = new ConcurrentHashMap<>();
+
+    public List<String> getBrokerAddressList() {
+        return brokerAddressList;
+    }
+
+    public void setBrokerAddressList(List<String> brokerAddressList) {
+        this.brokerAddressList = brokerAddressList;
+    }
 
     public String getNsIp() {
         return nsIp;
@@ -65,6 +83,14 @@ public class DefaultProducer {
         this.nsPassword = nsPassword;
     }
 
+    public Map<String, BrokerNettyRemoteClient> getBrokerNettyRemoteClientMap() {
+        return brokerNettyRemoteClientMap;
+    }
+
+    public void setBrokerNettyRemoteClientMap(Map<String, BrokerNettyRemoteClient> brokerNettyRemoteClientMap) {
+        this.brokerNettyRemoteClientMap = brokerNettyRemoteClientMap;
+    }
+
     public void start() {
         nameServerNettyRemoteClient = new NameServerNettyRemoteClient(nsIp, nsPort);
         nameServerNettyRemoteClient.buildConnection();
@@ -73,9 +99,16 @@ public class DefaultProducer {
             doHeartbeat();
             // 拉取broker地址，broker如何将ip上报到nameserver？
             fetchBrokerAddress(BrokerRoleEnum.MASTER.name());
+            // 连接到broker节点上
+            connectBroker();
         }
     }
 
+    /**
+     * 注册到 nameserver
+     *
+     * @return boolean
+     */
     private boolean doRegistry() {
         ServiceRegistryReqDto reqDto = new ServiceRegistryReqDto();
         String msgId = UUID.randomUUID().toString();
@@ -130,6 +163,21 @@ public class DefaultProducer {
         reqDto.setRole(role);
         TcpMsg reqMsg = new TcpMsg(NameServerEventCodeEnum.PULL_BROKER_MASTER_IP.getCode(), reqDto);
         TcpMsg respMsg = nameServerNettyRemoteClient.sendSyncMsg(reqMsg, msgId);
+        PullBrokerIpRespDto respDto = JSON.parseObject(respMsg.getBody(), PullBrokerIpRespDto.class);
+        this.setBrokerAddressList(respDto.getAddressList());
         LOGGER.info("拉取到broker地址：{}", respMsg);
+    }
+
+    /**
+     * 连接到broker
+     */
+    private void connectBroker() {
+        AssertUtil.isNotEmpty(brokerAddressList, "Broker节点列表不能为空");
+        brokerAddressList.forEach(brokerAddress -> {
+            String[] addressArr = brokerAddress.split(":");
+            BrokerNettyRemoteClient client = new BrokerNettyRemoteClient(addressArr[0], Integer.parseInt(addressArr[1]));
+            client.buildConnection();
+            this.getBrokerNettyRemoteClientMap().put(brokerAddress, client);
+        });
     }
 }
