@@ -24,7 +24,7 @@ public class NameServerRespChannelHandler extends SimpleChannelInboundHandler<Tc
             // 注册成功，需要开启一个定时任务，定时上报心跳数据
             LOGGER.info("nameServer 注册成功，开启心跳任务");
             CommonCache.getHeartBeatTaskManager().startTask();
-        } else if (msg.getCode() == NameServerResponseCodeEnum.ERROR_USER_OR_PASSWORD.getCode()) {
+        } else if (msg.getCode() == NameServerResponseCodeEnum.ERROR_ACCESS.getCode()) {
             // 验证失败
             throw new RuntimeException("error nameserver user or password");
         } else if (msg.getCode() == NameServerResponseCodeEnum.HEART_BEAT_SUCCESS.getCode()) {

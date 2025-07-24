@@ -11,8 +11,8 @@ import java.util.Map;
  **/
 
 public class ServiceInstance {
-    private String brokerIp;
-    private Integer brokerPort;
+    private String ip;
+    private Integer port;
     private Long firstRegistryTime;
     private Long lastHeartBeatTime;
     /**
@@ -20,20 +20,20 @@ public class ServiceInstance {
      */
     private Map<String, String> attrs = new HashMap<>();
 
-    public String getBrokerIp() {
-        return brokerIp;
+    public String getIp() {
+        return ip;
     }
 
-    public void setBrokerIp(String brokerIp) {
-        this.brokerIp = brokerIp;
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
-    public Integer getBrokerPort() {
-        return brokerPort;
+    public Integer getPort() {
+        return port;
     }
 
-    public void setBrokerPort(Integer brokerPort) {
-        this.brokerPort = brokerPort;
+    public void setPort(Integer port) {
+        this.port = port;
     }
 
     public Long getFirstRegistryTime() {

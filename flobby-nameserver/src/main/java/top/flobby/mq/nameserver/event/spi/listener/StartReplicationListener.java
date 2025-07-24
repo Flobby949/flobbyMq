@@ -25,11 +25,11 @@ public class StartReplicationListener implements Listener<StartReplicationEvent>
         ChannelHandlerContext ctx = event.getCtx();
         if (!isVerify) {
             // 注册失败
-            TcpMsg errorMsg = new TcpMsg(NameServerResponseCodeEnum.ERROR_USER_OR_PASSWORD);
+            TcpMsg errorMsg = new TcpMsg(NameServerResponseCodeEnum.ERROR_ACCESS);
             // 回写失败消息
             ctx.writeAndFlush(errorMsg);
             ctx.close();
-            throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_USER_OR_PASSWORD.getDesc());
+            throw new IllegalAccessException(NameServerResponseCodeEnum.ERROR_ACCESS.getDesc());
         }
         // 向内存中加入
         InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();

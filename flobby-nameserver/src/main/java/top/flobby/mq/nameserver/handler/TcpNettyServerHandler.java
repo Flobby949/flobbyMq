@@ -6,6 +6,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.dto.HeartbeatDto;
+import top.flobby.mq.common.dto.ServiceRegistryReqDto;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.nameserver.event.EventBus;
 import top.flobby.mq.nameserver.event.model.Event;
@@ -13,6 +15,7 @@ import top.flobby.mq.nameserver.event.model.HeartBeatEvent;
 import top.flobby.mq.nameserver.event.model.RegistryEvent;
 import top.flobby.mq.nameserver.event.model.UnRegistryEvent;
 
+import java.net.InetSocketAddress;
 import java.util.Objects;
 
 /**
@@ -37,12 +40,23 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg tcpMsg) throws Exception {
         int code = tcpMsg.getCode();
+        LOGGER.info("接收到消息: {}", tcpMsg);
         byte[] body = tcpMsg.getBody();
         Event event;
         switch (Objects.requireNonNull(NameServerEventCodeEnum.getByCode(code))) {
             case REGISTRY:
                 // 注册事件
-                event = JSON.parseObject(body, RegistryEvent.class);
+                ServiceRegistryReqDto reqDto = JSON.parseObject(body, ServiceRegistryReqDto.class);
+                RegistryEvent registryEvent = new RegistryEvent();
+                registryEvent.setMsgId(reqDto.getMsgId());
+                registryEvent.setUser(reqDto.getUser());
+                registryEvent.setPassword(reqDto.getPassword());
+                registryEvent.setRegistryType(reqDto.getRegistryType());
+                registryEvent.setAttrs(reqDto.getAttrs());
+                InetSocketAddress inetSocketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
+                registryEvent.setIp(inetSocketAddress.getHostString());
+                registryEvent.setPort(inetSocketAddress.getPort());
+                event = registryEvent;
                 break;
             case UN_REGISTRY:
                 // 下线事件
@@ -50,7 +64,10 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
                 break;
             case HEART_BEAT:
                 // 心跳事件
-                event = new HeartBeatEvent();
+                HeartbeatDto heartbeatDto = JSON.parseObject(body, HeartbeatDto.class);
+                HeartBeatEvent heartBeatEvent = new HeartBeatEvent();
+                heartBeatEvent.setMsgId(heartbeatDto.getMsgId());
+                event = heartBeatEvent;
                 break;
             default:
                 event = new Event();

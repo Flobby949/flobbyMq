@@ -18,6 +18,7 @@
         <module>flobby-broker</module>
         <module>flobby-common</module>
         <module>flobby-nameserver</module>
+        <module>flobby-client</module>
     </modules>
 
     <properties>

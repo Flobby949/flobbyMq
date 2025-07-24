@@ -5,8 +5,6 @@ import top.flobby.mq.common.constant.NameServerConstants;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 
-import java.util.Arrays;
-
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -103,7 +101,7 @@ public class TcpMsg {
                 "magic=" + magic +
                 ", code=" + code +
                 ", len=" + len +
-                ", body=" + Arrays.toString(body) +
+                ", body=" + new String(body) +
                 '}';
     }
 }

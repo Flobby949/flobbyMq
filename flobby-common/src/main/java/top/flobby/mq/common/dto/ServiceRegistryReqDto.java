@@ -1,4 +1,4 @@
-package top.flobby.mq.nameserver.event.model;
+package top.flobby.mq.common.dto;
 
 import top.flobby.mq.common.enums.RegistryTypeEnum;
 
@@ -8,11 +8,12 @@ import java.util.Map;
 /**
  * @author : flobby
  * @program : flobbyMq
- * @description : 注册事件，首次连接nameserver使用
- * @create : 2025-04-30 11:22
+ * @description : 服务注册请求dto
+ * @create : 2025-07-21 10:41
  **/
 
-public class RegistryEvent extends Event{
+public class ServiceRegistryReqDto extends BaseNameServerRemoteDto{
+
     private String user;
     private String password;
     private String ip;

@@ -1,5 +1,7 @@
 package top.flobby.mq.nameserver.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.config.NameServerProperties;
 
@@ -11,6 +13,8 @@ import top.flobby.mq.nameserver.config.NameServerProperties;
  **/
 
 public class NameServerUtil {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(NameServerUtil.class);
 
     /**
      * 检查用户和密码

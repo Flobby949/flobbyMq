@@ -40,7 +40,7 @@ public class ReplicationService {
         NameServerProperties nameServerProperties = CommonCache.getNameServerProperties();
         String replicationMode = nameServerProperties.getReplicationMode();
         if (StringUtils.isBlank(replicationMode) || ReplicationModeEnum.SINGLE.getMode().equals(replicationMode)) {
-            LOGGER.error("执行单机模式");
+            LOGGER.info("执行单机模式");
             return ReplicationModeEnum.SINGLE;
         }
         ReplicationModeEnum modeEnum = ReplicationModeEnum.of(replicationMode);
