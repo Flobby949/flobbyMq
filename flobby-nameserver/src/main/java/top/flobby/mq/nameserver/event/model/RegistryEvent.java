@@ -1,6 +1,7 @@
 package top.flobby.mq.nameserver.event.model;
 
 import top.flobby.mq.common.enums.RegistryTypeEnum;
+import top.flobby.mq.common.event.model.Event;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
  * @create : 2025-04-30 11:22
  **/
 
-public class RegistryEvent extends Event{
+public class RegistryEvent extends Event {
     private String user;
     private String password;
     private String ip;

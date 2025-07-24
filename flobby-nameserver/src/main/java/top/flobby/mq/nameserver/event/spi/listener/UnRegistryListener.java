@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
+import top.flobby.mq.common.event.Listener;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.UnRegistryEvent;
 
@@ -16,7 +17,7 @@ import top.flobby.mq.nameserver.event.model.UnRegistryEvent;
  * @create : 2025-04-30 16:17
  **/
 
-public class UnRegistryListener implements Listener<UnRegistryEvent>{
+public class UnRegistryListener implements Listener<UnRegistryEvent> {
     public static final Logger LOGGER = LoggerFactory.getLogger(UnRegistryListener.class);
 
     @Override

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsgDecoder;
 import top.flobby.mq.common.coder.TcpMsgEncoder;
-import top.flobby.mq.nameserver.event.EventBus;
+import top.flobby.mq.common.event.EventBus;
 import top.flobby.mq.nameserver.handler.TcpNettyServerHandler;
 
 /**

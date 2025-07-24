@@ -7,6 +7,7 @@ import top.flobby.mq.common.dto.PullBrokerIpRespDto;
 import top.flobby.mq.common.enums.BrokerRoleEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
 import top.flobby.mq.common.enums.RegistryTypeEnum;
+import top.flobby.mq.common.event.Listener;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.PullBrokerIpEvent;
 import top.flobby.mq.nameserver.store.ServiceInstance;

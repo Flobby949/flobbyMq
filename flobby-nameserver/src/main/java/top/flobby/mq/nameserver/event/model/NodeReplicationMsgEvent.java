@@ -1,5 +1,6 @@
 package top.flobby.mq.nameserver.event.model;
 
+import top.flobby.mq.common.event.model.Event;
 import top.flobby.mq.nameserver.enums.ReplicationMsgTypeEnum;
 import top.flobby.mq.nameserver.store.ServiceInstance;
 
@@ -10,7 +11,7 @@ import top.flobby.mq.nameserver.store.ServiceInstance;
  * @create : 2025-05-21 15:32
  **/
 
-public class NodeReplicationMsgEvent extends Event{
+public class NodeReplicationMsgEvent extends Event {
 
     /**
      * @see top.flobby.mq.nameserver.enums.ReplicationMsgTypeEnum

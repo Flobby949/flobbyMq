@@ -1,5 +1,7 @@
 package top.flobby.mq.nameserver.event.model;
 
+import top.flobby.mq.common.event.model.Event;
+
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -7,7 +9,7 @@ package top.flobby.mq.nameserver.event.model;
  * @create : 2025-07-24 11:20
  **/
 
-public class PullBrokerIpEvent extends Event{
+public class PullBrokerIpEvent extends Event {
     private String role;
 
     public String getRole() {

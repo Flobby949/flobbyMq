@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
+import top.flobby.mq.common.event.Listener;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.config.TraceReplicationProperties;
 import top.flobby.mq.nameserver.event.model.NodeReplicationAckMsgEvent;

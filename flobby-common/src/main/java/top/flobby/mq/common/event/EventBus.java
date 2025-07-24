@@ -1,4 +1,4 @@
-package top.flobby.mq.nameserver.event;
+package top.flobby.mq.common.event;
 
 import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
@@ -6,8 +6,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.utils.ReflectUtil;
-import top.flobby.mq.nameserver.event.model.Event;
-import top.flobby.mq.nameserver.event.spi.listener.Listener;
+import top.flobby.mq.common.event.model.Event;
 
 import java.util.List;
 import java.util.Map;

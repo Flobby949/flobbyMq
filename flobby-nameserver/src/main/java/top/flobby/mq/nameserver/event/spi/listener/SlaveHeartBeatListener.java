@@ -2,6 +2,7 @@ package top.flobby.mq.nameserver.event.spi.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.flobby.mq.common.event.Listener;
 import top.flobby.mq.nameserver.event.model.SlaveHeartBeatEvent;
 
 /**

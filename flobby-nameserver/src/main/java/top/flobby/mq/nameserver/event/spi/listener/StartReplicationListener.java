@@ -5,6 +5,7 @@ import io.netty.util.AttributeKey;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
+import top.flobby.mq.common.event.Listener;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.StartReplicationEvent;
 import top.flobby.mq.nameserver.utils.NameServerUtil;
@@ -18,7 +19,7 @@ import java.net.InetSocketAddress;
  * @create : 2025-05-07 14:32
  **/
 
-public class StartReplicationListener implements Listener<StartReplicationEvent>{
+public class StartReplicationListener implements Listener<StartReplicationEvent> {
     @Override
     public void onReceive(StartReplicationEvent event) throws Exception {
         boolean isVerify = NameServerUtil.checkUserAndPassword(event.getUser(), event.getPassword());

@@ -1,5 +1,7 @@
 package top.flobby.mq.nameserver.event.model;
 
+import top.flobby.mq.common.event.model.Event;
+
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -7,5 +9,5 @@ package top.flobby.mq.nameserver.event.model;
  * @create : 2025-05-08 10:44
  **/
 
-public class SlaveReplicationMsgAckEvent extends Event{
+public class SlaveReplicationMsgAckEvent extends Event {
 }

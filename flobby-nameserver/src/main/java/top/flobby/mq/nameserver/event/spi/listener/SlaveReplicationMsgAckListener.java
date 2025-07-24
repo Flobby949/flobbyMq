@@ -3,6 +3,7 @@ package top.flobby.mq.nameserver.event.spi.listener;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.SlaveAckDto;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
+import top.flobby.mq.common.event.Listener;
 import top.flobby.mq.common.utils.AssertUtil;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.event.model.SlaveReplicationMsgAckEvent;
@@ -14,7 +15,7 @@ import top.flobby.mq.nameserver.event.model.SlaveReplicationMsgAckEvent;
  * @create : 2025-05-08 10:55
  **/
 
-public class SlaveReplicationMsgAckListener implements Listener<SlaveReplicationMsgAckEvent>{
+public class SlaveReplicationMsgAckListener implements Listener<SlaveReplicationMsgAckEvent> {
     @Override
     public void onReceive(SlaveReplicationMsgAckEvent event) throws Exception {
         String masterReplicationMsgId = event.getMsgId();

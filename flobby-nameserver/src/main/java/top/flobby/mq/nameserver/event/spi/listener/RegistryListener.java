@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.ServiceRegistryRespDto;
 import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
+import top.flobby.mq.common.event.Listener;
 import top.flobby.mq.nameserver.cache.CommonCache;
 import top.flobby.mq.nameserver.enums.ReplicationModeEnum;
 import top.flobby.mq.nameserver.enums.ReplicationMsgTypeEnum;
@@ -25,7 +26,7 @@ import java.util.UUID;
  * @create : 2025-04-30 16:17
  **/
 
-public class RegistryListener implements Listener<RegistryEvent>{
+public class RegistryListener implements Listener<RegistryEvent> {
     public static final Logger LOGGER = LoggerFactory.getLogger(RegistryListener.class);
 
     @Override

@@ -19,7 +19,7 @@ import top.flobby.mq.nameserver.config.NameServerProperties;
 import top.flobby.mq.nameserver.config.TraceReplicationProperties;
 import top.flobby.mq.nameserver.enums.ReplicationModeEnum;
 import top.flobby.mq.nameserver.enums.ReplicationRoleEnum;
-import top.flobby.mq.nameserver.event.EventBus;
+import top.flobby.mq.common.event.EventBus;
 import top.flobby.mq.nameserver.handler.MasterReplicationServerHandler;
 import top.flobby.mq.nameserver.handler.NodeSendReplicationMsgServerHandler;
 import top.flobby.mq.nameserver.handler.NodeWriteMsgReplicationServerHandler;

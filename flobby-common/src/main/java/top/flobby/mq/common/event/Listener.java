@@ -1,6 +1,6 @@
-package top.flobby.mq.nameserver.event.spi.listener;
+package top.flobby.mq.common.event;
 
-import top.flobby.mq.nameserver.event.model.Event;
+import top.flobby.mq.common.event.model.Event;
 
 /**
  * @author : flobby

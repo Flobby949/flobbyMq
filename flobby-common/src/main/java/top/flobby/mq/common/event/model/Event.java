@@ -1,4 +1,4 @@
-package top.flobby.mq.nameserver.event.model;
+package top.flobby.mq.common.event.model;
 
 import io.netty.channel.ChannelHandlerContext;
 

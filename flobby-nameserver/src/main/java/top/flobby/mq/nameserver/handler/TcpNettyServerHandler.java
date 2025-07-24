@@ -4,13 +4,15 @@ import com.alibaba.fastjson2.JSON;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.HeartbeatDto;
 import top.flobby.mq.common.dto.PullBrokerIpReqDto;
 import top.flobby.mq.common.dto.ServiceRegistryReqDto;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
-import top.flobby.mq.nameserver.event.EventBus;
+import top.flobby.mq.common.event.model.Event;
+import top.flobby.mq.common.event.EventBus;
 import top.flobby.mq.nameserver.event.model.*;
 
 import java.net.InetSocketAddress;
@@ -51,9 +53,14 @@ public class TcpNettyServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
                 registryEvent.setPassword(reqDto.getPassword());
                 registryEvent.setRegistryType(reqDto.getRegistryType());
                 registryEvent.setAttrs(reqDto.getAttrs());
-                InetSocketAddress inetSocketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
-                registryEvent.setIp(inetSocketAddress.getHostString());
-                registryEvent.setPort(inetSocketAddress.getPort());
+                if (StringUtils.isBlank(reqDto.getIp())) {
+                    InetSocketAddress inetSocketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
+                    registryEvent.setIp(inetSocketAddress.getHostString());
+                    registryEvent.setPort(inetSocketAddress.getPort());
+                } else {
+                    registryEvent.setIp(reqDto.getIp());
+                    registryEvent.setPort(reqDto.getPort());
+                }
                 event = registryEvent;
                 break;
             case UN_REGISTRY:

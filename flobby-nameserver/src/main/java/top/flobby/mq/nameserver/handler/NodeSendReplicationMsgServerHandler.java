@@ -7,8 +7,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
-import top.flobby.mq.nameserver.event.EventBus;
-import top.flobby.mq.nameserver.event.model.Event;
+import top.flobby.mq.common.event.EventBus;
+import top.flobby.mq.common.event.model.Event;
 import top.flobby.mq.nameserver.event.model.NodeReplicationAckMsgEvent;
 
 import java.util.Objects;
