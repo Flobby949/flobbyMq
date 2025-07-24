@@ -1,11 +1,14 @@
 package top.flobby.mq.broker.netty.broker;
 
+import com.alibaba.fastjson2.JSON;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.dto.MessageDto;
+import top.flobby.mq.common.enums.BrokerEventCodeEnum;
 import top.flobby.mq.common.event.EventBus;
 
 /**
@@ -33,8 +36,13 @@ public class BrokerServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg object) throws Exception {
-
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg tcpMsg) throws Exception {
+        int code = tcpMsg.getCode();
+        byte[] body = tcpMsg.getBody();
+        if (code == BrokerEventCodeEnum.PUSH_MSG.getCode()) {
+            MessageDto message = JSON.parseObject(body, MessageDto.class);
+            LOGGER.info("收到推送消息：{}", message);
+        }
     }
 
     @Override

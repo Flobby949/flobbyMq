@@ -4,14 +4,8 @@ import com.alibaba.fastjson2.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.common.coder.TcpMsg;
-import top.flobby.mq.common.dto.HeartbeatDto;
-import top.flobby.mq.common.dto.PullBrokerIpReqDto;
-import top.flobby.mq.common.dto.PullBrokerIpRespDto;
-import top.flobby.mq.common.dto.ServiceRegistryReqDto;
-import top.flobby.mq.common.enums.BrokerRoleEnum;
-import top.flobby.mq.common.enums.NameServerEventCodeEnum;
-import top.flobby.mq.common.enums.NameServerResponseCodeEnum;
-import top.flobby.mq.common.enums.RegistryTypeEnum;
+import top.flobby.mq.common.dto.*;
+import top.flobby.mq.common.enums.*;
 import top.flobby.mq.common.remote.BrokerNettyRemoteClient;
 import top.flobby.mq.common.remote.NameServerNettyRemoteClient;
 import top.flobby.mq.common.utils.AssertUtil;
@@ -21,6 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 默认生产者
@@ -29,8 +24,8 @@ import java.util.concurrent.TimeUnit;
  * @date 2025/07/21
  */
 
-public class DefaultProducer {
-    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultProducer.class);
+public class DefaultProducerImpl implements Producer {
+    public static final Logger LOGGER = LoggerFactory.getLogger(DefaultProducerImpl.class);
     // 连接nameserver，发送心跳，拉取broker地址
     // 与broker建立连接，发送数据到broker
 
@@ -179,5 +174,39 @@ public class DefaultProducer {
             client.buildConnection();
             this.getBrokerNettyRemoteClientMap().put(brokerAddress, client);
         });
+    }
+
+    @Override
+    public SendResult send(MessageDto message) {
+        // topic需要定位到具体的broker实例
+        BrokerNettyRemoteClient client = getRemoteBrokerClient();
+        String msgId = UUID.randomUUID().toString();
+        message.setMsgId(msgId);
+        message.setSendWay(MessageSendWayEnum.SYNC.ordinal());
+        TcpMsg tcpMsg = new TcpMsg(BrokerEventCodeEnum.PUSH_MSG.getCode(), JSON.toJSONBytes(message));
+        TcpMsg respMsg = client.sendSyncMsg(tcpMsg, msgId);
+        SendMsgToBrokerRespDto respDto = JSON.parseObject(respMsg.getBody(), SendMsgToBrokerRespDto.class);
+        int status = respDto.getStatus();
+        SendResult sendResult = new SendResult();
+        if (status == SendMsgToBrokerRespStatusEnum.SUCCESS.ordinal()) {
+            sendResult.setSendStatus(SendStatus.SUCCESS);
+        } else if (status == SendMsgToBrokerRespStatusEnum.FAIL.ordinal()){
+            sendResult.setSendStatus(SendStatus.FAIL);
+        }
+        return sendResult;
+    }
+
+    @Override
+    public void sendAsync(MessageDto message) {
+        BrokerNettyRemoteClient client = getRemoteBrokerClient();
+        String msgId = UUID.randomUUID().toString();
+        message.setMsgId(msgId);
+        message.setSendWay(MessageSendWayEnum.ASYNC.ordinal());
+        TcpMsg tcpMsg = new TcpMsg(BrokerEventCodeEnum.PUSH_MSG.getCode(), JSON.toJSONBytes(message));
+        client.sendAsyncMsg(tcpMsg);
+    }
+
+    private BrokerNettyRemoteClient getRemoteBrokerClient() {
+        return this.getBrokerNettyRemoteClientMap().values().stream().collect(Collectors.toList()).get(0);
     }
 }

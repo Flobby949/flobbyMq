@@ -74,6 +74,14 @@ public class BrokerNettyRemoteClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
 
+    /**
+     * 发送异步消息
+     *
+     * @param tcpMsg TCP消息
+     */
+    public void sendAsyncMsg(TcpMsg tcpMsg) {
+        channel.writeAndFlush(tcpMsg);
     }
 }
