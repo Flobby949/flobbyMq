@@ -21,6 +21,16 @@ public class GlobalProperties {
     private String nameserverPassword;
 
     private Integer brokerPort;
+    // 重平衡策略
+    private String rebalanceStrategy;
+
+    public String getRebalanceStrategy() {
+        return rebalanceStrategy;
+    }
+
+    public void setRebalanceStrategy(String rebalanceStrategy) {
+        this.rebalanceStrategy = rebalanceStrategy;
+    }
 
     public Integer getBrokerPort() {
         return brokerPort;

@@ -8,10 +8,12 @@ import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
 import top.flobby.mq.broker.model.TopicModel;
 import top.flobby.mq.broker.netty.nameserver.HeartBeatTaskManager;
 import top.flobby.mq.broker.netty.nameserver.NameServerClient;
+import top.flobby.mq.broker.rebalance.ConsumerInstance;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -30,6 +32,15 @@ public class CommonCache {
     private static CommitLogMMapFileModelManager commitLogMMapFileModelManager = new CommitLogMMapFileModelManager();
     private static HeartBeatTaskManager heartBeatTaskManager = new HeartBeatTaskManager();
     private static CommitLogAppendHandler commitLogAppendHandler;
+    private static Map<String, Map<String, List<ConsumerInstance>>> consumeHoldMap = new ConcurrentHashMap<>();
+
+    public static Map<String, Map<String, List<ConsumerInstance>>> getConsumeHoldMap() {
+        return consumeHoldMap;
+    }
+
+    public static void setConsumeHoldMap(Map<String, Map<String, List<ConsumerInstance>>> consumeHoldMap) {
+        CommonCache.consumeHoldMap = consumeHoldMap;
+    }
 
     public static CommitLogAppendHandler getCommitLogAppendHandler() {
         return commitLogAppendHandler;
