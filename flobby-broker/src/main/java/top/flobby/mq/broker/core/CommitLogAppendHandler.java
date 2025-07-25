@@ -2,7 +2,7 @@ package top.flobby.mq.broker.core;
 
 import top.flobby.mq.broker.cache.CommonCache;
 import top.flobby.mq.common.constant.BrokerConstants;
-import top.flobby.mq.broker.model.CommitLogMessageModel;
+import top.flobby.mq.common.dto.MessageDto;
 
 import java.io.IOException;
 
@@ -28,19 +28,13 @@ public class CommitLogAppendHandler {
 
     /**
      * 追加写入消息
-     *
-     * @param topic   主题
-     * @param content 内容
      */
-    public void appendMsg(String topic, byte[] content) throws IOException {
-        CommitLogMMapFileModel commitLogMMapFileModel =  CommonCache.getCommitLogMMapFileModelManager().get(topic);
+    public void appendMsg(MessageDto message) throws IOException {
+        CommitLogMMapFileModel commitLogMMapFileModel =  CommonCache.getCommitLogMMapFileModelManager().get(message.getTopic());
         if (commitLogMMapFileModel == null) {
             throw new RuntimeException("topic is not exist");
         }
-        CommitLogMessageModel commitLogMessageModel = new CommitLogMessageModel();
-        commitLogMessageModel.setContent(content);
-        // commitLogMessageModel.setSize(content.length);
-        commitLogMMapFileModel.writeContent(commitLogMessageModel);
+        commitLogMMapFileModel.writeContent(message, true);
     }
 
 }

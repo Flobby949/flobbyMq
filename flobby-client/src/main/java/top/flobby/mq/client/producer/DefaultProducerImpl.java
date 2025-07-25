@@ -199,8 +199,9 @@ public class DefaultProducerImpl implements Producer {
     @Override
     public void sendAsync(MessageDto message) {
         BrokerNettyRemoteClient client = getRemoteBrokerClient();
-        String msgId = UUID.randomUUID().toString();
-        message.setMsgId(msgId);
+        // TODO 异步消息可以不加MsgId
+        // String msgId = UUID.randomUUID().toString();
+        // message.setMsgId(msgId);
         message.setSendWay(MessageSendWayEnum.ASYNC.ordinal());
         TcpMsg tcpMsg = new TcpMsg(BrokerEventCodeEnum.PUSH_MSG.getCode(), JSON.toJSONBytes(message));
         client.sendAsyncMsg(tcpMsg);

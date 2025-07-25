@@ -61,6 +61,7 @@ public class BrokerStartUp {
             commitLogAppendHandler.prepareMMapLoading(topicName);
             consumeQueueAppendHandler.prepareConsumeQueue(topicName);
         }
+        CommonCache.setCommitLogAppendHandler(commitLogAppendHandler);
     }
 
     /**

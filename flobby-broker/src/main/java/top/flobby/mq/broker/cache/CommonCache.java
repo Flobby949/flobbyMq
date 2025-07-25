@@ -1,6 +1,7 @@
 package top.flobby.mq.broker.cache;
 
 import top.flobby.mq.broker.config.GlobalProperties;
+import top.flobby.mq.broker.core.CommitLogAppendHandler;
 import top.flobby.mq.broker.core.CommitLogMMapFileModelManager;
 import top.flobby.mq.broker.core.ConsumeQueueMMapFileModelManager;
 import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
@@ -28,6 +29,15 @@ public class CommonCache {
     private static ConsumeQueueMMapFileModelManager consumeQueueMMapFileModelManager = new ConsumeQueueMMapFileModelManager();
     private static CommitLogMMapFileModelManager commitLogMMapFileModelManager = new CommitLogMMapFileModelManager();
     private static HeartBeatTaskManager heartBeatTaskManager = new HeartBeatTaskManager();
+    private static CommitLogAppendHandler commitLogAppendHandler;
+
+    public static CommitLogAppendHandler getCommitLogAppendHandler() {
+        return commitLogAppendHandler;
+    }
+
+    public static void setCommitLogAppendHandler(CommitLogAppendHandler commitLogAppendHandler) {
+        CommonCache.commitLogAppendHandler = commitLogAppendHandler;
+    }
 
     public static HeartBeatTaskManager getHeartBeatTaskManager() {
         return heartBeatTaskManager;

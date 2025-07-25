@@ -21,11 +21,12 @@ class DefaultProducerTest {
     @Test
     void sendSyncMsg() {
         MessageDto message = new MessageDto();
-        message.setTopic("test_topic");
+        message.setTopic("order_cancel_topic");
         message.setBody("this is a async content".getBytes());
         defaultProducer.sendAsync(message);
         message.setBody("this is a test content".getBytes());
         SendResult send = defaultProducer.send(message);
         System.out.println(send.getSendStatus().name());
+        System.out.println("========= END ========");
     }
 }

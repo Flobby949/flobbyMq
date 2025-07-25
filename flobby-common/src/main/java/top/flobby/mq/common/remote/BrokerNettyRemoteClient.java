@@ -5,7 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import top.flobby.mq.common.cache.NameServerSyncFutureManager;
+import top.flobby.mq.common.cache.BrokerSyncFutureManager;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.coder.TcpMsgDecoder;
 import top.flobby.mq.common.coder.TcpMsgEncoder;
@@ -68,7 +68,7 @@ public class BrokerNettyRemoteClient {
         channel.writeAndFlush(tcpMsg);
         SyncFuture syncFuture = new SyncFuture();
         syncFuture.setMsgId(msgId);
-        NameServerSyncFutureManager.put(msgId, syncFuture);
+        BrokerSyncFutureManager.put(msgId, syncFuture);
         try {
             return (TcpMsg) syncFuture.get();
         } catch (Exception e) {

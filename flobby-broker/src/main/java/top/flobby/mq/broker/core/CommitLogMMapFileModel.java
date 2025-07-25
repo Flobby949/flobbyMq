@@ -7,6 +7,7 @@ import top.flobby.mq.broker.lock.PutMessageLock;
 import top.flobby.mq.broker.lock.UnFailReentrantLock;
 import top.flobby.mq.broker.model.*;
 import top.flobby.mq.broker.utils.LogFileNameUtil;
+import top.flobby.mq.common.dto.MessageDto;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -139,10 +140,10 @@ public class CommitLogMMapFileModel {
     /**
      * 写入数据
      *
-     * @param commitLogMessageModel 消息内容
+     * @param message            消息内容
      * @param force                 是否强制刷盘
      */
-    public void writeContent(CommitLogMessageModel commitLogMessageModel, boolean force) throws IOException {
+    public void writeContent(MessageDto message, boolean force) throws IOException {
         /**
          * 1. 定位到最新的 commitLog 中
          * 2. 判断是否写满，如果写满，自动创建新的文件，并且做新的 mmap 映射
@@ -165,6 +166,8 @@ public class CommitLogMMapFileModel {
         // 加锁
         putMessageLock.lock();
         // 把对象转换成 byte 数组，将 size 转换为 byte 数组，然后拼上 content
+        CommitLogMessageModel commitLogMessageModel = new CommitLogMessageModel();
+        commitLogMessageModel.setContent(message.getBody());
         byte[] messageBytes = commitLogMessageModel.convertToBytes();
         // 判断剩余空间是否足够写入
         this.checkCommitLogHasEnableSpace(commitLogMessageModel);
@@ -172,7 +175,7 @@ public class CommitLogMMapFileModel {
         mappedByteBuffer.put(messageBytes);
         // 消息写入 ConsumerQueue
         AtomicInteger currentMsgOffset = commitLog.getOffset();
-        this.dispatcher(messageBytes, currentMsgOffset.get());
+        this.dispatcher(message, currentMsgOffset.get());
         // 更新 offset
         commitLog.getOffset().addAndGet(messageBytes.length);
         if (force) {
@@ -182,40 +185,45 @@ public class CommitLogMMapFileModel {
         putMessageLock.unlock();
     }
 
-    public void writeContent(CommitLogMessageModel commitLogMessageModel) throws IOException {
-        this.writeContent(commitLogMessageModel, false);
+    public void writeContent(MessageDto message) throws IOException {
+        this.writeContent(message, false);
     }
 
     /**
      * 消息写入 consumerQueue
      *
-     * @param writeContent 写入内容
-     * @param msgIndex     味精指数
+     * @param message         写入内容
+     * @param msgIndex       消息指针
      */
-    private void dispatcher(byte[] writeContent, int msgIndex) {
+    private void dispatcher(MessageDto message, int msgIndex) {
         TopicModel topicModel = CommonCache.getTopicModelMap().get(topic);
         if (topicModel == null) {
             throw new IllegalArgumentException("topic is undefined! topicName=" + topic);
         }
         ConsumeQueueDetailModel consumerQueueDetail = new ConsumeQueueDetailModel();
         consumerQueueDetail.setCommitLogFileName(Integer.parseInt(topicModel.getLatestCommitLog().getFileName()));
-        consumerQueueDetail.setMsgLength(writeContent.length);
+        consumerQueueDetail.setMsgLength(message.getBody().length);
         consumerQueueDetail.setMsgIndex(msgIndex);
         System.out.println("写入 consumeQueue 内容：" +JSON.toJSONString(consumerQueueDetail));
         byte[] contentArr = consumerQueueDetail.convertToBytes();
         consumerQueueDetail.convertToModel(contentArr);
         // System.out.println("从byte中转换 consumeQueue 内容：" +JSON.toJSONString(consumerQueueDetail));
         // TODO 暂时还没传递queueId
-        int queueTempId = 0;
+        int queueId;
+        if (message.getQueueId() >= 0) {
+            queueId = message.getQueueId();
+        } else {
+            queueId = 0;
+        }
         List<ConsumeQueueMMapFileModel> queueModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(this.topic);
         ConsumeQueueMMapFileModel consumeQueueMMapFileModel = queueModelList
                 .stream()
-                .filter(queueModel -> queueModel.getQueueId().equals(queueTempId))
+                .filter(queueModel -> queueModel.getQueueId().equals(queueId))
                 .findFirst()
                 .orElse(null);
         consumeQueueMMapFileModel.writeContent(contentArr);
         // 刷新 offset
-        QueueModel queueModel = topicModel.getQueueList().get(queueTempId);
+        QueueModel queueModel = topicModel.getQueueList().get(queueId);
         queueModel.getLatestOffset().addAndGet(contentArr.length);
     }
 

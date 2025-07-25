@@ -6,10 +6,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.flobby.mq.broker.event.mode.PushMsgEvent;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.MessageDto;
 import top.flobby.mq.common.enums.BrokerEventCodeEnum;
 import top.flobby.mq.common.event.EventBus;
+import top.flobby.mq.common.event.model.Event;
 
 /**
  * @author : flobby
@@ -27,6 +29,7 @@ public class BrokerServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
 
     public BrokerServerHandler(EventBus eventBus) {
         this.eventBus = eventBus;
+        eventBus.init();
     }
 
     @Override
@@ -39,10 +42,20 @@ public class BrokerServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TcpMsg tcpMsg) throws Exception {
         int code = tcpMsg.getCode();
         byte[] body = tcpMsg.getBody();
+        Event event;
         if (code == BrokerEventCodeEnum.PUSH_MSG.getCode()) {
             MessageDto message = JSON.parseObject(body, MessageDto.class);
             LOGGER.info("收到推送消息：{}", message);
+            PushMsgEvent pushMsgEvent = new PushMsgEvent();
+            pushMsgEvent.setMessage(message);
+            pushMsgEvent.setMsgId(message.getMsgId());
+            event = pushMsgEvent;
+        } else {
+            return;
         }
+        event.setCtx(channelHandlerContext);
+        event.setTimestamp(System.currentTimeMillis());
+        eventBus.publish(event);
     }
 
     @Override

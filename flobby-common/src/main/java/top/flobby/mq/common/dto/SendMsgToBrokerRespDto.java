@@ -7,7 +7,7 @@ package top.flobby.mq.common.dto;
  * @create : 2025-07-24 16:36
  **/
 
-public class SendMsgToBrokerRespDto {
+public class SendMsgToBrokerRespDto extends BaseBrokerRemoteDto {
 
     /**
      * 0-成功

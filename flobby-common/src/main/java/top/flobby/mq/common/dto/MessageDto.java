@@ -11,7 +11,7 @@ import top.flobby.mq.common.enums.MessageSendWayEnum;
 
 public class MessageDto {
     private String topic;
-    private int queueId;
+    private int queueId = -1;
     private String msgId;
     /**
      * 发送方式
