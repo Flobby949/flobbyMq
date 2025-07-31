@@ -10,6 +10,7 @@ package top.flobby.mq.common.enums;
 public enum BrokerEventCodeEnum {
     PUSH_MSG(1001, "推送消息"),
     CONSUME_MSG(1002, "消费消息"),
+    CONSUME_SUCCESS(1003, "消费成功"),
     ;
 
     final int code;

@@ -9,7 +9,7 @@ import java.util.List;
  * @create : 2025-07-30 16:51
  **/
 
-public class ConsumeMsgRespDto extends BaseNameServerRemoteDto {
+public class ConsumeMsgRespDto extends BaseBrokerRemoteDto {
 
     private List<ConsumeMsgRespItem> consumeMsgRespItemList;
 

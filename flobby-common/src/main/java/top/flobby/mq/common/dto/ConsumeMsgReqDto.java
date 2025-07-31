@@ -7,11 +7,12 @@ package top.flobby.mq.common.dto;
  * @create : 2025-07-30 16:31
  **/
 
-public class ConsumeMsgReqDto extends BaseNameServerRemoteDto {
+public class ConsumeMsgReqDto extends BaseBrokerRemoteDto {
     private String topic;
     private String consumeGroup;
     private String ip;
     private int port;
+    private int batchSize;
 
     public String getTopic() {
         return topic;
@@ -43,6 +44,14 @@ public class ConsumeMsgReqDto extends BaseNameServerRemoteDto {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 
     @Override

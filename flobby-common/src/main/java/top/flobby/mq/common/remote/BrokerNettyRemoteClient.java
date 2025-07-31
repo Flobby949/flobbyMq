@@ -1,14 +1,18 @@
 package top.flobby.mq.common.remote;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import top.flobby.mq.common.cache.BrokerSyncFutureManager;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.coder.TcpMsgDecoder;
 import top.flobby.mq.common.coder.TcpMsgEncoder;
+import top.flobby.mq.common.constant.TcpConstants;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +42,8 @@ public class BrokerNettyRemoteClient {
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel socketChannel) throws Exception {
+                ByteBuf delimiter = Unpooled.copiedBuffer(TcpConstants.DEFAULT_DECODE_CHAR.getBytes());
+                socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(1024 * 8, delimiter));
                 socketChannel.pipeline().addLast(new TcpMsgDecoder());
                 socketChannel.pipeline().addLast(new TcpMsgEncoder());
                 socketChannel.pipeline().addLast(new BrokerRemoteRespHandler());

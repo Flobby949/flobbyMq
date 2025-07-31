@@ -1,5 +1,6 @@
 package top.flobby.mq.broker.rebalance;
 
+import com.alibaba.fastjson2.JSON;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,7 @@ public class ConsumerInstancePool {
             // 添加实例
             consumerInstanceList.add(instance);
             consumerInstanceMap.put(topic, consumerInstanceList);
+            LOGGER.info("加入新的消费实例: {}", JSON.toJSONString(instance));
             // 添加一个消费组
             Set<String> consumerGroupSet = reBalanceInfo.getChangeConsumerGroupMap().getOrDefault(topic, new HashSet<>());
             consumerGroupSet.add(instance.getConsumeGroup());
@@ -77,7 +79,7 @@ public class ConsumerInstancePool {
             reBalanceInfo.setConsumerInstanceMap(this.consumerInstanceMap);
             reBalanceStrategyMap.get(reBalanceStrategy).doReBalance(reBalanceInfo);
             reBalanceInfo.getChangeConsumerGroupMap().clear();
-            LOGGER.info("重平衡结束");
+            LOGGER.info("重平衡结束: {}", JSON.toJSONString(CommonCache.getConsumeHoldMap()));
         }
     }
 

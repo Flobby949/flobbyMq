@@ -2,6 +2,8 @@ package top.flobby.mq.broker.netty.nameserver;
 
 import com.alibaba.fastjson2.JSON;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -9,6 +11,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import top.flobby.mq.broker.config.GlobalProperties;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.coder.TcpMsgDecoder;
 import top.flobby.mq.common.coder.TcpMsgEncoder;
+import top.flobby.mq.common.constant.TcpConstants;
 import top.flobby.mq.common.dto.ServiceRegistryReqDto;
 import top.flobby.mq.common.enums.BrokerRoleEnum;
 import top.flobby.mq.common.enums.NameServerEventCodeEnum;
@@ -55,6 +59,8 @@ public class NameServerClient {
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
+                ByteBuf delimiter = Unpooled.copiedBuffer(TcpConstants.DEFAULT_DECODE_CHAR.getBytes());
+                ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024 * 8, delimiter));
                 ch.pipeline().addLast(new TcpMsgDecoder());
                 ch.pipeline().addLast(new TcpMsgEncoder());
                 ch.pipeline().addLast(new NameServerRespChannelHandler());

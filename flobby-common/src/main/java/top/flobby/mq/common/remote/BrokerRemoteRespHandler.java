@@ -7,7 +7,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import top.flobby.mq.common.cache.BrokerSyncFutureManager;
 import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.dto.BaseBrokerRemoteDto;
-import top.flobby.mq.common.dto.SendMsgToBrokerRespDto;
 import top.flobby.mq.common.enums.BrokerResponseCodeEnum;
 
 /**
@@ -24,9 +23,11 @@ public class BrokerRemoteRespHandler extends SimpleChannelInboundHandler<TcpMsg>
         int code = tcpMsg.getCode();
         byte[] body = tcpMsg.getBody();
         if (BrokerResponseCodeEnum.SEND_MSG_RESP.getCode() == code) {
-            SendMsgToBrokerRespDto respDto = JSON.parseObject(body, SendMsgToBrokerRespDto.class);
+            // SendMsgToBrokerRespDto respDto = JSON.parseObject(body, SendMsgToBrokerRespDto.class);
             handleSyncResp(tcpMsg);
         } else if (BrokerResponseCodeEnum.CONSUME_MSG_RESP.getCode() == code) {
+            handleSyncResp(tcpMsg);
+        } else if (BrokerResponseCodeEnum.BROKER_UPDATE_CONSUME_OFFSET_RESP.getCode() == code) {
             handleSyncResp(tcpMsg);
         }
 

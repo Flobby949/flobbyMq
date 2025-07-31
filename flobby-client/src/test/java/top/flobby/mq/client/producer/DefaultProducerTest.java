@@ -29,4 +29,14 @@ class DefaultProducerTest {
         System.out.println(send.getSendStatus().name());
         System.out.println("========= END ========");
     }
+
+    @Test
+    void sendMsg () {
+        for (int i = 0; i < 50; i++) {
+            MessageDto message = new MessageDto();
+            message.setTopic("order_cancel_topic");
+            message.setBody(("this is a test content" + i).getBytes());
+            defaultProducer.sendAsync(message);
+        }
+    }
 }

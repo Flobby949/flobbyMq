@@ -6,9 +6,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.flobby.mq.broker.event.mode.ConsumeMsgAckEvent;
 import top.flobby.mq.broker.event.mode.ConsumeMsgEvent;
 import top.flobby.mq.broker.event.mode.PushMsgEvent;
 import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.dto.ConsumeMsgAckReqDto;
 import top.flobby.mq.common.dto.ConsumeMsgReqDto;
 import top.flobby.mq.common.dto.MessageDto;
 import top.flobby.mq.common.enums.BrokerEventCodeEnum;
@@ -39,7 +41,7 @@ public class BrokerServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        LOGGER.info("Producer连接成功");
+        LOGGER.info("客户端连接成功");
     }
 
     @Override
@@ -59,11 +61,20 @@ public class BrokerServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
             reqDto.setIp(inetSocketAddress.getHostString());
             reqDto.setPort(inetSocketAddress.getPort());
-            LOGGER.info("收到消费消息：{}", reqDto);
+            // LOGGER.info("收到消费消息：{}", reqDto);
             ConsumeMsgEvent consumeMsgEvent = new ConsumeMsgEvent();
             consumeMsgEvent.setReqDto(reqDto);
             consumeMsgEvent.setMsgId(reqDto.getMsgId());
             event = consumeMsgEvent;
+        } else if (code == BrokerEventCodeEnum.CONSUME_SUCCESS.getCode()) {
+            ConsumeMsgAckReqDto reqDto = JSON.parseObject(body, ConsumeMsgAckReqDto.class);
+            ConsumeMsgAckEvent consumeMsgAckEvent = new ConsumeMsgAckEvent();
+            consumeMsgAckEvent.setConsumeMsgAckReqDto(reqDto);
+            consumeMsgAckEvent.setMsgId(reqDto.getMsgId());
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
+            reqDto.setIp(inetSocketAddress.getHostString());
+            reqDto.setPort(inetSocketAddress.getPort());
+            event = consumeMsgAckEvent;
         } else {
             return;
         }

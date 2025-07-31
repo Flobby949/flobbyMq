@@ -3,6 +3,7 @@ package top.flobby.mq.common.coder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import top.flobby.mq.common.constant.TcpConstants;
 
 /**
  * @author : flobby
@@ -18,5 +19,6 @@ public class TcpMsgEncoder extends MessageToByteEncoder<TcpMsg> {
         out.writeInt(msg.getCode());
         out.writeInt(msg.getLen());
         out.writeBytes(msg.getBody());
+        out.writeBytes(TcpConstants.DEFAULT_DECODE_CHAR.getBytes());
     }
 }

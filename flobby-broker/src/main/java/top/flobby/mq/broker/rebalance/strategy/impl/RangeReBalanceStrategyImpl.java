@@ -41,14 +41,14 @@ public class RangeReBalanceStrategyImpl implements IReBalanceStrategy {
                 int queueId = 0;
                 for (ConsumerInstance instance : consumerInstanceList) {
                     for (int queueNums = 0; queueNums < eachConsumerQueueNum; queueNums++) {
-                        instance.getQueueIdList().add(queueId++);
+                        instance.getQueueIdSet().add(queueId++);
                     }
                 }
                 // 代表有多余队列没有被用到
                 int remainQueueCount = queueSize - queueId;
                 if (remainQueueCount > 0) {
                     for (int i = 0; i < remainQueueCount; i++) {
-                        consumerInstanceList.get(i).getQueueIdList().add(queueId++);
+                        consumerInstanceList.get(i).getQueueIdSet().add(queueId++);
                     }
                 }
             }

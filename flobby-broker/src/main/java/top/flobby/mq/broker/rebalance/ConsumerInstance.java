@@ -1,7 +1,7 @@
 package top.flobby.mq.broker.rebalance;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author : flobby
@@ -24,7 +24,7 @@ public class ConsumerInstance {
     /**
      * 持有队列，一个消费者可以持有多个队列
      */
-    private List<Integer> queueIdList = new ArrayList<>();
+    private Set<Integer> queueIdSet = new HashSet<>();
     /**
      * 消费者唯一id
      */
@@ -74,12 +74,12 @@ public class ConsumerInstance {
         this.topic = topic;
     }
 
-    public List<Integer> getQueueIdList() {
-        return queueIdList;
+    public Set<Integer> getQueueIdSet() {
+        return queueIdSet;
     }
 
-    public void setQueueIdList(List<Integer> queueIdList) {
-        this.queueIdList = queueIdList;
+    public void setQueueIdSet(Set<Integer> queueIdSet) {
+        this.queueIdSet = queueIdSet;
     }
 
     public String getConsumerReqId() {

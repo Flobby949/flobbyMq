@@ -3,7 +3,7 @@
 		"createAt":1718159629848,
 		"latestCommitLog":{
 			"fileName":"00000000",
-			"offset":182,
+			"offset":1372,
 			"offsetLimit":1048576
 		},
 		"queueList":[
@@ -11,21 +11,21 @@
 				"fileName":"00000000",
 				"id":0,
 				"lastOffset":0,
-				"latestOffset":96,
+				"latestOffset":276,
 				"offsetLimit":6291456
 			},
 			{
 				"fileName":"00000000",
 				"id":1,
 				"lastOffset":0,
-				"latestOffset":0,
+				"latestOffset":228,
 				"offsetLimit":6291456
 			},
 			{
 				"fileName":"00000000",
 				"id":2,
 				"lastOffset":0,
-				"latestOffset":0,
+				"latestOffset":192,
 				"offsetLimit":6291456
 			}
 		],

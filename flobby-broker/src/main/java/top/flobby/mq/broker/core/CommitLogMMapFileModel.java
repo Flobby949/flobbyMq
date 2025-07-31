@@ -2,11 +2,11 @@ package top.flobby.mq.broker.core;
 
 import com.alibaba.fastjson2.JSON;
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.common.constant.BrokerConstants;
 import top.flobby.mq.broker.lock.PutMessageLock;
 import top.flobby.mq.broker.lock.UnFailReentrantLock;
 import top.flobby.mq.broker.model.*;
 import top.flobby.mq.broker.utils.LogFileNameUtil;
+import top.flobby.mq.common.constant.BrokerConstants;
 import top.flobby.mq.common.dto.MessageDto;
 
 import java.io.File;
@@ -20,6 +20,7 @@ import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -213,7 +214,10 @@ public class CommitLogMMapFileModel {
         if (message.getQueueId() >= 0) {
             queueId = message.getQueueId();
         } else {
-            queueId = 0;
+            // 随机分发
+            // TODO 可以自由扩展消息分发策略（随机、轮训）
+            int queueSize = topicModel.getQueueList().size();
+            queueId = new Random().nextInt(queueSize);
         }
         List<ConsumeQueueMMapFileModel> queueModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(this.topic);
         ConsumeQueueMMapFileModel consumeQueueMMapFileModel = queueModelList

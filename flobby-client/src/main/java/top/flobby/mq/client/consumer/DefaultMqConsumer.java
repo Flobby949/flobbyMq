@@ -18,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author : flobby
@@ -47,6 +48,10 @@ public class DefaultMqConsumer {
     private Integer batchSize;
     private Map<String, BrokerNettyRemoteClient> brokerNettyRemoteClientMap = new ConcurrentHashMap<>();
 
+    // broker有数据，间隔100ms拉取一次
+    private final static int EACH_BATCH_PULL_MSG_INTER = 100;
+    // 没有消息时，间隔1000ms拉取一次
+    private final static int EACH_BATCH_PULL_MSG_INTER_NO_MSG = 1000;
     private final CountDownLatch lock = new CountDownLatch(1);
 
     public void start() throws InterruptedException {
@@ -155,17 +160,19 @@ public class DefaultMqConsumer {
                         ConsumeMsgReqDto msgReqDto = new ConsumeMsgReqDto();
                         msgReqDto.setTopic(topic);
                         msgReqDto.setConsumeGroup(consumeGroup);
+                        msgReqDto.setBatchSize(batchSize);
                         String msgId = UUID.randomUUID().toString();
                         msgReqDto.setMsgId(msgId);
                         TcpMsg reqMsg = new TcpMsg(BrokerEventCodeEnum.CONSUME_MSG.getCode(), msgReqDto);
                         // 发送RPC消息，拉取到消息内容
-                        TcpMsg pullRespMsg = client.sendSyncMsg(reqMsg, msgId, 5000);
+                        TcpMsg pullRespMsg = client.sendSyncMsg(reqMsg, msgId, 10 * 1000);
                         if (pullRespMsg == null) {
                             continue;
                         }
                         ConsumeMsgRespDto consumeMsgRespDto = JSON.parseObject(pullRespMsg.getBody(), ConsumeMsgRespDto.class);
                         List<ConsumeMsgRespDto.ConsumeMsgRespItem> consumeMsgRespList = consumeMsgRespDto.getConsumeMsgRespItemList();
                         LOGGER.info("拉取到消费数据：{}", JSON.toJSONString(consumeMsgRespList));
+                        AtomicBoolean brokerHasDataFlag = new AtomicBoolean(false);
                         if (CollectionUtils.isNotEmpty(consumeMsgRespList)) {
                             consumeMsgRespList.forEach(respItem -> {
                                 List<byte[]> commitLogContentList = respItem.getCommitLogContentList();
@@ -177,13 +184,39 @@ public class DefaultMqConsumer {
                                 commitLogContentList.forEach(content -> {
                                     ConsumeMessage consumeMessage = new ConsumeMessage();
                                     consumeMessage.setBody(content);
-                                    consumeMessage.setQueueId(queueId);
+                                    consumeMessage.setQueueId(respItem.getQueueId());
                                     consumeMsgList.add(consumeMessage);
                                 });
-                                messageConsumeListener.consume(consumeMsgList);
+                                brokerHasDataFlag.set(true);
+                                ConsumeResult consumeResult = messageConsumeListener.consume(consumeMsgList);
+                                if (consumeResult.getConsumeResultStatus() == ConsumeStatus.CONSUME_SUCCESS.ordinal()) {
+                                    // 确认消费成功
+                                    ConsumeMsgAckReqDto ackReqDto = new ConsumeMsgAckReqDto();
+                                    String ackMsgId = UUID.randomUUID().toString();
+                                    ackReqDto.setTopic(topic);
+                                    ackReqDto.setConsumeGroup(consumeGroup);
+                                    ackReqDto.setQueueId(respItem.getQueueId());
+                                    ackReqDto.setMsgId(ackMsgId);
+                                    ackReqDto.setAckCount(batchSize);
+                                    TcpMsg ackResp = client.sendSyncMsg(new TcpMsg(BrokerEventCodeEnum.CONSUME_SUCCESS.getCode(), ackReqDto), ackMsgId);
+                                    ConsumeMsgAckRespDto respDto = JSON.parseObject(ackResp.getBody(), ConsumeMsgAckRespDto.class);
+                                    if (AckStatusEnum.SUCCESS.ordinal() == respDto.getAckStatus()) {
+                                        LOGGER.info("消费ACK成功，offset已经更新!");
+                                    } else {
+                                        LOGGER.error("消息消费ACK失败!");
+                                    }
+                                }
                             });
+                        } else {
+                            LOGGER.info("没有可消费的消息");
+                            // 没有消息大概率下一次还是么有消息，间隔周期可以长一些
                         }
-                        TimeUnit.SECONDS.sleep(10);
+                        if (brokerHasDataFlag.get()) {
+                            // 如果broker有数据，间隔短一些
+                            TimeUnit.MILLISECONDS.sleep(EACH_BATCH_PULL_MSG_INTER);
+                        } else {
+                            TimeUnit.MILLISECONDS.sleep(EACH_BATCH_PULL_MSG_INTER_NO_MSG);
+                        }
                     } catch (Exception e) {
                         LOGGER.error("消费任务异常", e);
                     }

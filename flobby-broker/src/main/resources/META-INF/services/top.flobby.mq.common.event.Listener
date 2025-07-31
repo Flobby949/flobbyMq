@@ -1,2 +1,3 @@
 top.flobby.mq.broker.event.spi.listener.PushMsgListener
 top.flobby.mq.broker.event.spi.listener.ConsumeMsgListener
+top.flobby.mq.broker.event.spi.listener.ConsumeMsgAckListener

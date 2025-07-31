@@ -37,8 +37,8 @@ public class ConsumeMsgListener implements Listener<ConsumeMsgEvent> {
         instance.setConsumerReqId(currentReqId);
         instance.setTopic(topic);
         instance.setConsumeGroup(consumeGroup);
-        // TODO 获取消费队列的batchSize
-        instance.setBatchSize(10);
+        // 获取消费队列的batchSize
+        instance.setBatchSize(msgReqDto.getBatchSize());
         CommonCache.getConsumerInstancePool().addInstancePool(instance);
 
         // 根据topic和consumeGroup获取实例
@@ -53,7 +53,7 @@ public class ConsumeMsgListener implements Listener<ConsumeMsgEvent> {
         for (ConsumerInstance consumerInstance : consumerInstanceList) {
             if (consumerInstance.getConsumerReqId().equals(currentReqId)) {
                 // 当前消费者有占有队列的权利 TODO
-                for (Integer queueId : consumerInstance.getQueueIdList()) {
+                for (Integer queueId : consumerInstance.getQueueIdSet()) {
                     ConsumeQueueConsumeReqModel req = new ConsumeQueueConsumeReqModel();
                     req.setTopic(topic);
                     req.setConsumeGroup(consumeGroup);

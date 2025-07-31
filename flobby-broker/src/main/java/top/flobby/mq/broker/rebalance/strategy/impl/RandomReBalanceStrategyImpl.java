@@ -54,6 +54,10 @@ public class RandomReBalanceStrategyImpl implements IReBalanceStrategy {
                 // 持有queue的实例
                 List<ConsumerInstance> holdQueueInstanceList = new ArrayList<>();
                 List<ConsumerInstance> consumerInstances = consumeGroupMap.get(consumeGroup);
+                //先释放消费者之前所持有的队列，重新分配
+                for (ConsumerInstance consumerInstance : consumerInstances) {
+                    consumerInstance.getQueueIdSet().clear();
+                }
                 // 获取每个消费组下的消费者数量
                 int consumeSize = consumerInstances.size();
                 Collections.shuffle(consumerInstances);
@@ -63,7 +67,7 @@ public class RandomReBalanceStrategyImpl implements IReBalanceStrategy {
                     // 第一遍遍历消费者，确保所有的消费者都有队列
                     for (int consumerIndex = 0; consumerIndex < consumeSize; consumerIndex++, queueId++) {
                         ConsumerInstance consumerInstance = consumerInstances.get(consumerIndex);
-                        consumerInstance.getQueueIdList().add(queueId);
+                        consumerInstance.getQueueIdSet().add(queueId);
                         holdQueueInstanceList.add(consumerInstance);
                     }
                     // 便利剩下的queue队列，随机分配给消费者
@@ -72,13 +76,13 @@ public class RandomReBalanceStrategyImpl implements IReBalanceStrategy {
                         // 在消费者中随机找一个
                         int randomConsumerIndex = random.nextInt(consumeSize);
                         ConsumerInstance consumerInstance = consumerInstances.get(randomConsumerIndex);
-                        consumerInstance.getQueueIdList().add(queueId);
+                        consumerInstance.getQueueIdSet().add(queueId);
                     }
                 } else {
                     // 队列数小于消费者个数，有些消费者可能没有队列持有
                     for (int queueId = 0; queueId < queueSize; queueId++) {
                         ConsumerInstance consumerInstance = consumerInstances.get(queueId);
-                        consumerInstance.getQueueIdList().add(queueId);
+                        consumerInstance.getQueueIdSet().add(queueId);
                     }
                 }
                 consumeGroupHoldMap.put(consumeGroup, holdQueueInstanceList);
