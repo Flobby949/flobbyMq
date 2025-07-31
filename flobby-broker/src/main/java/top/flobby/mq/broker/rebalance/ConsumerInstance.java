@@ -29,6 +29,18 @@ public class ConsumerInstance {
      * 消费者唯一id
      */
     private String consumerReqId;
+    /**
+     * 一次拉取多少条数据
+     */
+    private int batchSize;
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
 
     public String getIp() {
         return ip;

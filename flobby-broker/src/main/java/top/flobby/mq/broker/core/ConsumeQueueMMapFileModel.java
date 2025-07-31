@@ -16,6 +16,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -166,6 +167,27 @@ public class ConsumeQueueMMapFileModel {
         byte[] content = new byte[BrokerConstants.CONSUME_QUEUE_MSG_UNIT_SIZE];
         readBuf.get(content);
         return content;
+    }
+
+    /**
+     * 批量读取
+     *
+     * @param position                     位置
+     * @param batchSize                 批量大小
+     * @return {@link List }<{@link byte[] }>
+     */
+    public List<byte[]> readContent(Integer position, Integer batchSize) {
+        ByteBuffer readBuf = readBuffer.slice();
+        readBuf.position(position);
+        List<byte[]> contentList = new ArrayList<>();
+        for (int i = 0; i < batchSize; i++) {
+            byte[] content = new byte[BrokerConstants.CONSUME_QUEUE_MSG_UNIT_SIZE];
+            // get源码会修改 position
+            readBuf.get(content);
+            contentList.add(content);
+            System.out.println("读取commitLog原始数据：" + new String(content));
+        }
+        return contentList;
     }
 
     public String getTopic() {

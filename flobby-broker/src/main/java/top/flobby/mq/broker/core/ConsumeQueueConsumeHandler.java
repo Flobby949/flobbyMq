@@ -1,11 +1,9 @@
 package top.flobby.mq.broker.core;
 
 import top.flobby.mq.broker.cache.CommonCache;
-import top.flobby.mq.broker.model.ConsumeQueueDetailModel;
-import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
-import top.flobby.mq.broker.model.QueueModel;
-import top.flobby.mq.broker.model.TopicModel;
+import top.flobby.mq.broker.model.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,18 +18,23 @@ import java.util.Map;
 public class ConsumeQueueConsumeHandler {
 
     /**
-     * 读取最新一条ConsumerQueue消息内容
+     * 读取最新N条ConsumerQueue消息内容，并且返回commitLog原始内容
      *
      * @return {@link byte[] }
      */
-    public byte[] consume(String topic, String consumeGroup, Integer queueId) {
+    public  List<byte[]>  consume(ConsumeQueueConsumeReqModel reqModel) {
         // 检查参数合法性
         // 获取当前匹配的消费队列的最新的consumeQueue的offset
         // 获取当前匹配的队列存储文件的mmap对象，读取offset地址数据
+        String topic = reqModel.getTopic();
         TopicModel topicModel = CommonCache.getTopicModelMap().get(topic);
         if (topicModel == null) {
             throw new IllegalArgumentException("topic 【" + topic + "】is null");
         }
+        String consumeGroup = reqModel.getConsumeGroup();
+        Integer queueId = reqModel.getQueueId();
+        // 一次拉取多少条消息
+        Integer msgCount = reqModel.getBatchSize();
         ConsumeQueueOffsetModel.OffsetTable offsetTable = CommonCache.getConsumerQueueOffsetModel().getOffsetTable();
         Map<String, ConsumeQueueOffsetModel.ConsumerGroupDetail> topicConsumerGroupDetailMap = offsetTable.getTopicConsumerGroupDetail();
         ConsumeQueueOffsetModel.ConsumerGroupDetail consumerGroupDetail = topicConsumerGroupDetailMap.get(topic);
@@ -66,13 +69,19 @@ public class ConsumeQueueConsumeHandler {
         // 通过queue映射的mmap，获取到具体的数据
         List<ConsumeQueueMMapFileModel> consumeQueueMMapFileModelList = CommonCache.getConsumeQueueMMapFileModelManager().get(topic);
         ConsumeQueueMMapFileModel consumeQueueMMapFileModel = consumeQueueMMapFileModelList.get(queueId);
-        byte[] content = consumeQueueMMapFileModel.readContent(consumeQueueOffset);
-        ConsumeQueueDetailModel consumeQueueDetailModel = new ConsumeQueueDetailModel();
-        // 获取到消息的位置信息
-        consumeQueueDetailModel.convertToModel(content);
-        // System.out.println("consumeQueueDetailModel: " + JSON.toJSONString(consumeQueueDetailModel));
-        CommitLogMMapFileModel commitLogMMapFileModel = CommonCache.getCommitLogMMapFileModelManager().get(topic);
-        return commitLogMMapFileModel.readContent(consumeQueueDetailModel.getMsgIndex(), consumeQueueDetailModel.getMsgLength());
+        // 批量读取消息
+        List<byte[]> consumeQueueContentList = consumeQueueMMapFileModel.readContent(consumeQueueOffset, msgCount);
+        List<byte[]> commitLogBodyContentList = new ArrayList<>();
+        for (byte[] content : consumeQueueContentList) {
+            ConsumeQueueDetailModel consumeQueueDetailModel = new ConsumeQueueDetailModel();
+            // 获取到消息的位置信息
+            consumeQueueDetailModel.convertToModel(content);
+            // System.out.println("consumeQueueDetailModel: " + JSON.toJSONString(consumeQueueDetailModel));
+            CommitLogMMapFileModel commitLogMMapFileModel = CommonCache.getCommitLogMMapFileModelManager().get(topic);
+            byte[] commitLogContent = commitLogMMapFileModel.readContent(consumeQueueDetailModel.getMsgIndex(), consumeQueueDetailModel.getMsgLength());
+            commitLogBodyContentList.add(commitLogContent);
+        }
+          return commitLogBodyContentList;
     }
 
     /**

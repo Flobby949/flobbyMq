@@ -49,6 +49,10 @@ public class PullBrokerIpListener implements Listener<PullBrokerIpEvent> {
                             && BrokerRoleEnum.SLAVE.name().equalsIgnoreCase(instanceRole)) {
                         // LOGGER.info("拉取Broker从节点的ip");
                         addressList.add(instance.getIp() + ":" + instance.getPort());
+                    }else if (BrokerRoleEnum.SINGLE.name().equalsIgnoreCase(pullRole)
+                            && BrokerRoleEnum.SINGLE.name().equalsIgnoreCase(instanceRole)) {
+                        LOGGER.info("拉取Broker单机架构的ip");
+                        addressList.add(instance.getIp() + ":" + instance.getPort());
                     }
                 });
         respDto.setAddressList(addressList);

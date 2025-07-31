@@ -26,6 +26,8 @@ public class BrokerRemoteRespHandler extends SimpleChannelInboundHandler<TcpMsg>
         if (BrokerResponseCodeEnum.SEND_MSG_RESP.getCode() == code) {
             SendMsgToBrokerRespDto respDto = JSON.parseObject(body, SendMsgToBrokerRespDto.class);
             handleSyncResp(tcpMsg);
+        } else if (BrokerResponseCodeEnum.CONSUME_MSG_RESP.getCode() == code) {
+            handleSyncResp(tcpMsg);
         }
 
     }

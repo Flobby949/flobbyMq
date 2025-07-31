@@ -25,18 +25,29 @@ public class RandomReBalanceStrategyImpl implements IReBalanceStrategy {
         consumeInstanceMap.forEach((topic, consumerInstanceList) -> {
             // 该topic的信息
             TopicModel topicModel = topicModelMap.get(topic);
+            if (topicModel == null) {
+                return;
+            }
             // 获取每个topic消费组下的所有实例信息
             Map<String, List<ConsumerInstance>> consumeGroupMap = consumerInstanceList.stream()
                     .collect(Collectors.groupingBy(ConsumerInstance::getConsumeGroup));
             // 获取topic下的队列
+            if (topicModel.getQueueList() == null) {
+                // 此时可能队列还没分配
+                return;
+            }
             int queueSize = topicModel.getQueueList().size();
-            //取出当前topic有变更过的消费组名
+            // 取出当前topic有变更过的消费组名
             Set<String> changeConsumerGroup = reBalanceInfo.getChangeConsumerGroupMap().get(topic);
+            if (changeConsumerGroup == null || changeConsumerGroup.isEmpty()) {
+                // 目前没有新消费者加入，不需要触发重平衡
+                return;
+            }
             Map<String, List<ConsumerInstance>> consumeGroupHoldMap = new HashMap<>();
             for (String consumeGroup : consumeGroupMap.keySet()) {
-                //变更的消费组名单中没包含当前消费组，不触发重平衡
+                // 变更的消费组名单中没包含当前消费组，不触发重平衡
                 if (!changeConsumerGroup.contains(consumeGroup)) {
-                    //依旧保存之前的消费组信息
+                    // 依旧保存之前的消费组信息
                     consumeGroupHoldMap.put(consumeGroup, consumeGroupMap.get(consumeGroup));
                     continue;
                 }
@@ -62,14 +73,12 @@ public class RandomReBalanceStrategyImpl implements IReBalanceStrategy {
                         int randomConsumerIndex = random.nextInt(consumeSize);
                         ConsumerInstance consumerInstance = consumerInstances.get(randomConsumerIndex);
                         consumerInstance.getQueueIdList().add(queueId);
-                        holdQueueInstanceList.add(consumerInstance);
                     }
                 } else {
                     // 队列数小于消费者个数，有些消费者可能没有队列持有
                     for (int queueId = 0; queueId < queueSize; queueId++) {
                         ConsumerInstance consumerInstance = consumerInstances.get(queueId);
                         consumerInstance.getQueueIdList().add(queueId);
-                        holdQueueInstanceList.add(consumerInstance);
                     }
                 }
                 consumeGroupHoldMap.put(consumeGroup, holdQueueInstanceList);

@@ -101,8 +101,8 @@ public class NameServerClient {
             dto.setRegistryType(RegistryTypeEnum.BROKER.name());
             // 假设 broker是主从架构，(producer向主节点发送数据，consumer从从节点拉取数据)
             Map<String, Object> attrs = new HashMap<>();
-            // TODO 暂时写死master
-            attrs.put("role", BrokerRoleEnum.MASTER.name());
+            // TODO Broker的角色
+            attrs.put("role", BrokerRoleEnum.SINGLE.name());
             dto.setAttrs(attrs);
             TcpMsg tcpMsg = new TcpMsg(NameServerEventCodeEnum.REGISTRY.getCode(), JSON.toJSONBytes(dto));
             channel.writeAndFlush(tcpMsg);

@@ -3,12 +3,14 @@ package top.flobby.mq.broker.cache;
 import top.flobby.mq.broker.config.GlobalProperties;
 import top.flobby.mq.broker.core.CommitLogAppendHandler;
 import top.flobby.mq.broker.core.CommitLogMMapFileModelManager;
+import top.flobby.mq.broker.core.ConsumeQueueConsumeHandler;
 import top.flobby.mq.broker.core.ConsumeQueueMMapFileModelManager;
 import top.flobby.mq.broker.model.ConsumeQueueOffsetModel;
 import top.flobby.mq.broker.model.TopicModel;
 import top.flobby.mq.broker.netty.nameserver.HeartBeatTaskManager;
 import top.flobby.mq.broker.netty.nameserver.NameServerClient;
 import top.flobby.mq.broker.rebalance.ConsumerInstance;
+import top.flobby.mq.broker.rebalance.ConsumerInstancePool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,24 @@ public class CommonCache {
     private static HeartBeatTaskManager heartBeatTaskManager = new HeartBeatTaskManager();
     private static CommitLogAppendHandler commitLogAppendHandler;
     private static Map<String, Map<String, List<ConsumerInstance>>> consumeHoldMap = new ConcurrentHashMap<>();
+    private static ConsumerInstancePool consumerInstancePool = new ConsumerInstancePool();
+    private static ConsumeQueueConsumeHandler consumeQueueConsumeHandler;
+
+    public static ConsumeQueueConsumeHandler getConsumeQueueConsumeHandler() {
+        return consumeQueueConsumeHandler;
+    }
+
+    public static void setConsumeQueueConsumeHandler(ConsumeQueueConsumeHandler consumeQueueConsumeHandler) {
+        CommonCache.consumeQueueConsumeHandler = consumeQueueConsumeHandler;
+    }
+
+    public static ConsumerInstancePool getConsumerInstancePool() {
+        return consumerInstancePool;
+    }
+
+    public static void setConsumerInstancePool(ConsumerInstancePool consumerInstancePool) {
+        CommonCache.consumerInstancePool = consumerInstancePool;
+    }
 
     public static Map<String, Map<String, List<ConsumerInstance>>> getConsumeHoldMap() {
         return consumeHoldMap;

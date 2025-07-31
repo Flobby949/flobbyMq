@@ -10,6 +10,8 @@ import top.flobby.mq.common.coder.TcpMsg;
 import top.flobby.mq.common.coder.TcpMsgDecoder;
 import top.flobby.mq.common.coder.TcpMsgEncoder;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author : flobby
  * @program : flobbyMq
@@ -71,6 +73,18 @@ public class BrokerNettyRemoteClient {
         BrokerSyncFutureManager.put(msgId, syncFuture);
         try {
             return (TcpMsg) syncFuture.get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public TcpMsg sendSyncMsg(TcpMsg tcpMsg, String msgId, long timeout) {
+        channel.writeAndFlush(tcpMsg);
+        SyncFuture syncFuture = new SyncFuture();
+        syncFuture.setMsgId(msgId);
+        BrokerSyncFutureManager.put(msgId, syncFuture);
+        try {
+            return (TcpMsg) syncFuture.get(timeout, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

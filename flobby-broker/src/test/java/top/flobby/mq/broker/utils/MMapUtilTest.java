@@ -8,16 +8,16 @@ import java.util.concurrent.CountDownLatch;
 public class MMapUtilTest {
 
     MMapUtil mMapUtil;
-    String filePath = "/Users/flobby/IdeaProjects/flobbyMq/broker/store/order_cancel_topic/00000000";
+    String filePath = "/Users/flobby/IdeaProjects/flobbyMq/broker/commit_log/order_cancel_topic/00000000";
 
     @Test
     public void readContent() throws IOException {
         mMapUtil = new MMapUtil();
         mMapUtil.loadFileInMMap(filePath, 0, 10 * 1024 * 1024);
-        String str = "this is a test content";
-        byte[] content = str.getBytes();
-        mMapUtil.writeContent(content);
-        byte[] readContent = mMapUtil.readContent(0, content.length);
+        // String str = "this is a test content";
+        // byte[] content = str.getBytes();
+        // mMapUtil.writeContent(content);
+        byte[] readContent = mMapUtil.readContent(0, 45);
         System.out.println(new String(readContent));
     }
 

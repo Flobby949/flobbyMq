@@ -9,9 +9,14 @@ package top.flobby.mq.common.enums;
 
 public enum BrokerRoleEnum {
 
+    // 主
     MASTER,
 
+    // 从
     SLAVE,
+
+    // 单机
+    SINGLE,
 
     ;
 

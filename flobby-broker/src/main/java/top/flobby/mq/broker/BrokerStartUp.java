@@ -34,6 +34,8 @@ public class BrokerStartUp {
         initProperties();
         // 初始化nameserver服务器通道
         initNameServerChannel();
+        // 开始重平衡任务
+        initReBalanceJob();
         // 创建broker服务，这里是阻塞的
         brokerServerStarter = new BrokerServerStarter(CommonCache.getGlobalProperties().getBrokerPort());
         brokerServerStarter.startServer();
@@ -61,6 +63,7 @@ public class BrokerStartUp {
             commitLogAppendHandler.prepareMMapLoading(topicName);
             consumeQueueAppendHandler.prepareConsumeQueue(topicName);
         }
+        CommonCache.setConsumeQueueConsumeHandler(consumeQueueConsumeHandler);
         CommonCache.setCommitLogAppendHandler(commitLogAppendHandler);
     }
 
@@ -70,5 +73,9 @@ public class BrokerStartUp {
     private static void initNameServerChannel() {
         CommonCache.getNameServerClient().initConnect();
         CommonCache.getNameServerClient().sendRegistryMsg();
+    }
+
+    private static void initReBalanceJob() {
+        CommonCache.getConsumerInstancePool().startReBalanceTask();
     }
 }

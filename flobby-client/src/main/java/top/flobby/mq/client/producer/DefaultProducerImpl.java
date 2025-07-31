@@ -38,53 +38,7 @@ public class DefaultProducerImpl implements Producer {
     // 所有的broker连接
     private Map<String, BrokerNettyRemoteClient> brokerNettyRemoteClientMap = new ConcurrentHashMap<>();
 
-    public List<String> getBrokerAddressList() {
-        return brokerAddressList;
-    }
 
-    public void setBrokerAddressList(List<String> brokerAddressList) {
-        this.brokerAddressList = brokerAddressList;
-    }
-
-    public String getNsIp() {
-        return nsIp;
-    }
-
-    public void setNsIp(String nsIp) {
-        this.nsIp = nsIp;
-    }
-
-    public Integer getNsPort() {
-        return nsPort;
-    }
-
-    public void setNsPort(Integer nsPort) {
-        this.nsPort = nsPort;
-    }
-
-    public String getNsUser() {
-        return nsUser;
-    }
-
-    public void setNsUser(String nsUser) {
-        this.nsUser = nsUser;
-    }
-
-    public String getNsPassword() {
-        return nsPassword;
-    }
-
-    public void setNsPassword(String nsPassword) {
-        this.nsPassword = nsPassword;
-    }
-
-    public Map<String, BrokerNettyRemoteClient> getBrokerNettyRemoteClientMap() {
-        return brokerNettyRemoteClientMap;
-    }
-
-    public void setBrokerNettyRemoteClientMap(Map<String, BrokerNettyRemoteClient> brokerNettyRemoteClientMap) {
-        this.brokerNettyRemoteClientMap = brokerNettyRemoteClientMap;
-    }
 
     public void start() {
         nameServerNettyRemoteClient = new NameServerNettyRemoteClient(nsIp, nsPort);
@@ -93,7 +47,7 @@ public class DefaultProducerImpl implements Producer {
             // 开启心跳任务
             doHeartbeat();
             // 拉取broker地址，broker如何将ip上报到nameserver？
-            fetchBrokerAddress(BrokerRoleEnum.MASTER.name());
+            fetchBrokerAddress(BrokerRoleEnum.SINGLE.name());
             // 连接到broker节点上
             connectBroker();
         }
@@ -210,4 +164,54 @@ public class DefaultProducerImpl implements Producer {
     private BrokerNettyRemoteClient getRemoteBrokerClient() {
         return this.getBrokerNettyRemoteClientMap().values().stream().collect(Collectors.toList()).get(0);
     }
+
+
+    public List<String> getBrokerAddressList() {
+        return brokerAddressList;
+    }
+
+    public void setBrokerAddressList(List<String> brokerAddressList) {
+        this.brokerAddressList = brokerAddressList;
+    }
+
+    public String getNsIp() {
+        return nsIp;
+    }
+
+    public void setNsIp(String nsIp) {
+        this.nsIp = nsIp;
+    }
+
+    public Integer getNsPort() {
+        return nsPort;
+    }
+
+    public void setNsPort(Integer nsPort) {
+        this.nsPort = nsPort;
+    }
+
+    public String getNsUser() {
+        return nsUser;
+    }
+
+    public void setNsUser(String nsUser) {
+        this.nsUser = nsUser;
+    }
+
+    public String getNsPassword() {
+        return nsPassword;
+    }
+
+    public void setNsPassword(String nsPassword) {
+        this.nsPassword = nsPassword;
+    }
+
+    public Map<String, BrokerNettyRemoteClient> getBrokerNettyRemoteClientMap() {
+        return brokerNettyRemoteClientMap;
+    }
+
+    public void setBrokerNettyRemoteClientMap(Map<String, BrokerNettyRemoteClient> brokerNettyRemoteClientMap) {
+        this.brokerNettyRemoteClientMap = brokerNettyRemoteClientMap;
+    }
+
 }

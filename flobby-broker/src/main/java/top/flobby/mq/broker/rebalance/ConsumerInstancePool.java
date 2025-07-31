@@ -1,17 +1,18 @@
 package top.flobby.mq.broker.rebalance;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.flobby.mq.broker.cache.CommonCache;
+import top.flobby.mq.broker.model.TopicModel;
 import top.flobby.mq.broker.rebalance.strategy.IReBalanceStrategy;
 import top.flobby.mq.broker.rebalance.strategy.ReBalanceInfo;
 import top.flobby.mq.broker.rebalance.strategy.impl.RandomReBalanceStrategyImpl;
+import top.flobby.mq.common.utils.AssertUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -45,14 +46,23 @@ public class ConsumerInstancePool {
     public void addInstancePool(ConsumerInstance instance) {
         synchronized (this) {
             String topic = instance.getTopic();
+            //校验topic是否合法
+            TopicModel topicModel = CommonCache.getTopicModelMap().get(topic);
+            AssertUtil.isNotNull(topicModel,"topic非法");
             List<ConsumerInstance> consumerInstanceList = consumerInstanceMap.getOrDefault(topic, new ArrayList<>());
             for (ConsumerInstance consumerInstance : consumerInstanceList) {
+                // 防止重复添加
                 if (consumerInstance.getConsumerReqId().equals(instance.getConsumerReqId())) {
                     return;
                 }
             }
+            // 添加实例
             consumerInstanceList.add(instance);
             consumerInstanceMap.put(topic, consumerInstanceList);
+            // 添加一个消费组
+            Set<String> consumerGroupSet = reBalanceInfo.getChangeConsumerGroupMap().getOrDefault(topic, new HashSet<>());
+            consumerGroupSet.add(instance.getConsumeGroup());
+            reBalanceInfo.getChangeConsumerGroupMap().put(topic, consumerGroupSet);
         }
     }
 
@@ -66,7 +76,7 @@ public class ConsumerInstancePool {
             //触发重平衡行为，根据参数决定重平衡策略的不同
             reBalanceInfo.setConsumerInstanceMap(this.consumerInstanceMap);
             reBalanceStrategyMap.get(reBalanceStrategy).doReBalance(reBalanceInfo);
-            reBalanceInfo.getChangeConsumerGroupMap().clear();;
+            reBalanceInfo.getChangeConsumerGroupMap().clear();
             LOGGER.info("重平衡结束");
         }
     }
@@ -84,6 +94,24 @@ public class ConsumerInstancePool {
                     .filter(item -> !instance.getConsumerReqId().equals(item.getConsumerReqId()))
                     .collect(Collectors.toList());
             consumerInstanceMap.put(topic, filterConsumerInstanceList);
+            Set<String> consumerGroupSet = reBalanceInfo.getChangeConsumerGroupMap().get(topic);
+            if (CollectionUtils.isEmpty(consumerGroupSet)) {
+                return;
+            }
+            consumerGroupSet.remove(instance.getConsumeGroup());
         }
+    }
+
+    public void startReBalanceTask() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                    doReBalance();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
     }
 }

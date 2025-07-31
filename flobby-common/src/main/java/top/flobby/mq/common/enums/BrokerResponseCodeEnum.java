@@ -10,6 +10,7 @@ package top.flobby.mq.common.enums;
 public enum BrokerResponseCodeEnum {
 
     SEND_MSG_RESP(2001, "推送消息给broker，响应code"),
+    CONSUME_MSG_RESP(2002, "消费broker消息返回数据，响应code"),
 
     ;
 

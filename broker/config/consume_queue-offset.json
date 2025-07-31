@@ -3,13 +3,18 @@
 		"topicConsumerGroupDetail":{
 			"order_cancel_topic":{
 				"consumerGroupDetailMap":{
+					"test_consume_group":{
+						"0":"00000000#0",
+						"1":"00000000#0",
+						"2":"00000000#0"
+					},
 					"user_service_group":{
-						"0":"00000000#708",
+						"0":"00000000#0",
 						"1":"00000000#0",
 						"2":"00000000#0"
 					},
 					"order_service_group":{
-						"0":"00000000#708",
+						"0":"00000000#0",
 						"1":"00000000#0",
 						"2":"00000000#0"
 					}

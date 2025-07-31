@@ -11,6 +11,16 @@ public class ConsumeMessage {
 
     private byte[] body;
 
+    private Integer queueId;
+
+    public Integer getQueueId() {
+        return queueId;
+    }
+
+    public void setQueueId(Integer queueId) {
+        this.queueId = queueId;
+    }
+
     public byte[] getBody() {
         return body;
     }

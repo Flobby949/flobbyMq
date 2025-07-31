@@ -6,12 +6,16 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.flobby.mq.broker.event.mode.ConsumeMsgEvent;
 import top.flobby.mq.broker.event.mode.PushMsgEvent;
 import top.flobby.mq.common.coder.TcpMsg;
+import top.flobby.mq.common.dto.ConsumeMsgReqDto;
 import top.flobby.mq.common.dto.MessageDto;
 import top.flobby.mq.common.enums.BrokerEventCodeEnum;
 import top.flobby.mq.common.event.EventBus;
 import top.flobby.mq.common.event.model.Event;
+
+import java.net.InetSocketAddress;
 
 /**
  * @author : flobby
@@ -50,6 +54,16 @@ public class BrokerServerHandler extends SimpleChannelInboundHandler<TcpMsg> {
             pushMsgEvent.setMessage(message);
             pushMsgEvent.setMsgId(message.getMsgId());
             event = pushMsgEvent;
+        } else if (code == BrokerEventCodeEnum.CONSUME_MSG.getCode()) {
+            ConsumeMsgReqDto reqDto = JSON.parseObject(body, ConsumeMsgReqDto.class);
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
+            reqDto.setIp(inetSocketAddress.getHostString());
+            reqDto.setPort(inetSocketAddress.getPort());
+            LOGGER.info("收到消费消息：{}", reqDto);
+            ConsumeMsgEvent consumeMsgEvent = new ConsumeMsgEvent();
+            consumeMsgEvent.setReqDto(reqDto);
+            consumeMsgEvent.setMsgId(reqDto.getMsgId());
+            event = consumeMsgEvent;
         } else {
             return;
         }

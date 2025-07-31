@@ -22,7 +22,7 @@ class DefaultProducerTest {
     void sendSyncMsg() {
         MessageDto message = new MessageDto();
         message.setTopic("order_cancel_topic");
-        message.setBody("this is a async content".getBytes());
+        message.setBody("发送消息发送消息".getBytes());
         defaultProducer.sendAsync(message);
         message.setBody("this is a test content".getBytes());
         SendResult send = defaultProducer.send(message);
